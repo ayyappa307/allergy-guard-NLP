@@ -11,18 +11,23 @@ DB_FILE = os.path.join(BASE_DIR, "local_db.json")
 
 # Database URL from environment variables (Supabase)
 POSTGRES_URL = os.environ.get("POSTGRES_URL") or os.environ.get("DATABASE_URL")
+USE_POSTGRES = bool(POSTGRES_URL)
 
 def get_connection():
-    if not POSTGRES_URL:
+    if not USE_POSTGRES:
         return None
     url = POSTGRES_URL
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
-    try:
-        return psycopg2.connect(url, cursor_factory=RealDictCursor)
-    except Exception as e:
-        print(f"PostgreSQL connection error: {e}")
-        return None
+    
+    # Supabase requires SSL connection
+    if "sslmode" not in url:
+        if "?" in url:
+            url += "&sslmode=require"
+        else:
+            url += "?sslmode=require"
+            
+    return psycopg2.connect(url, cursor_factory=RealDictCursor)
 
 # --- LOCAL FILE DB FALLBACK ---
 
@@ -56,9 +61,12 @@ def save_db(data):
 # --- AUTO-DB SCHEMA CREATOR & MIGRATOR ---
 
 def init_db():
-    conn = get_connection()
-    if not conn:
+    try:
+        conn = get_connection()
+    except Exception as e:
+        print(f"Error connecting to Supabase during initialization: {e}")
         return
+        
     try:
         with conn.cursor() as cur:
             # Create Tables
@@ -175,14 +183,13 @@ def init_db():
         conn.close()
 
 # Auto-run table initialization if database connection environment is set
-if POSTGRES_URL:
+if USE_POSTGRES:
     init_db()
 
 # --- USER AUTH ENTITIES ---
 
 def create_user(email, password_hash):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for u in db["users"]:
             if u["email"].lower() == email.lower():
@@ -197,6 +204,7 @@ def create_user(email, password_hash):
         save_db(db)
         return user
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             user_id = str(uuid.uuid4())
@@ -213,19 +221,19 @@ def create_user(email, password_hash):
     except Exception as e:
         print(f"Error creating user in PostgreSQL: {e}")
         conn.rollback()
-        return None
+        raise e
     finally:
         conn.close()
 
 def get_user_by_email(email):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for u in db["users"]:
             if u["email"].lower() == email.lower():
                 return u
         return None
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s);", (email,))
@@ -235,19 +243,19 @@ def get_user_by_email(email):
             return user
     except Exception as e:
         print(f"Error fetching user by email from PostgreSQL: {e}")
-        return None
+        raise e
     finally:
         conn.close()
 
 def get_user_by_id(user_id):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for u in db["users"]:
             if u["id"] == user_id:
                 return u
         return None
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
@@ -257,144 +265,143 @@ def get_user_by_id(user_id):
             return user
     except Exception as e:
         print(f"Error fetching user by ID from PostgreSQL: {e}")
-        return None
+        raise e
     finally:
         conn.close()
 
 # --- ALLERGENS ---
 
 def get_allergens():
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         return db["allergens"]
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM allergens;")
             return list(cur.fetchall())
     except Exception as e:
         print(f"Error fetching allergens from PostgreSQL: {e}")
-        return []
+        raise e
     finally:
         conn.close()
 
 def get_allergen_by_id(allergen_id):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for a in db["allergens"]:
             if a["id"] == allergen_id:
                 return a
         return None
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM allergens WHERE id = %s;", (allergen_id,))
             return cur.fetchone()
     except Exception as e:
         print(f"Error fetching allergen by ID from PostgreSQL: {e}")
-        return None
+        raise e
     finally:
         conn.close()
 
 # --- FOODS ---
 
 def get_foods():
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         return db["foods"]
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM foods;")
             return list(cur.fetchall())
     except Exception as e:
         print(f"Error fetching foods from PostgreSQL: {e}")
-        return []
+        raise e
     finally:
         conn.close()
 
 def get_food_by_id(food_id):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for f in db["foods"]:
             if f["id"] == food_id:
                 return f
         return None
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM foods WHERE id = %s;", (food_id,))
             return cur.fetchone()
     except Exception as e:
         print(f"Error fetching food by ID from PostgreSQL: {e}")
-        return None
+        raise e
     finally:
         conn.close()
 
 # --- SYMPTOMS ---
 
 def get_symptoms():
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         return db["symptoms"]
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM symptoms;")
             return list(cur.fetchall())
     except Exception as e:
         print(f"Error fetching symptoms from PostgreSQL: {e}")
-        return []
+        raise e
     finally:
         conn.close()
 
 def get_symptom_by_id(symptom_id):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         for s in db["symptoms"]:
             if s["id"] == symptom_id:
                 return s
         return None
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM symptoms WHERE id = %s;", (symptom_id,))
             return cur.fetchone()
     except Exception as e:
         print(f"Error fetching symptom by ID from PostgreSQL: {e}")
-        return None
+        raise e
     finally:
         conn.close()
 
 # --- MEDICINES ---
 
 def get_medicines():
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         return db["medicines"]
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM medicines;")
             return list(cur.fetchall())
     except Exception as e:
         print(f"Error fetching medicines from PostgreSQL: {e}")
-        return []
+        raise e
     finally:
         conn.close()
 
 # --- QUERY LOGS ---
 
 def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_analysis, results):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         log_entry = {
             "id": str(uuid.uuid4()),
@@ -410,6 +417,7 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
         save_db(db)
         return log_entry
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             log_id = str(uuid.uuid4())
@@ -429,18 +437,18 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
     except Exception as e:
         print(f"Error saving query log in PostgreSQL: {e}")
         conn.rollback()
-        return None
+        raise e
     finally:
         conn.close()
 
 def get_query_logs(user_id):
-    conn = get_connection()
-    if not conn:
+    if not USE_POSTGRES:
         db = load_db()
         logs = [log for log in db["query_logs"] if log["user_id"] == user_id]
         logs.sort(key=lambda x: x["created_at"], reverse=True)
         return logs
 
+    conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM query_logs WHERE user_id = %s ORDER BY created_at DESC;", (user_id,))
@@ -450,6 +458,6 @@ def get_query_logs(user_id):
             return list(logs)
     except Exception as e:
         print(f"Error fetching query logs from PostgreSQL: {e}")
-        return []
+        raise e
     finally:
         conn.close()
