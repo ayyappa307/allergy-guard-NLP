@@ -612,7 +612,7 @@ export default function App() {
                       safety app
                     </h1>
                     <p className="text-base md:text-lg font-normal leading-relaxed max-w-xl text-slate-600 dark:text-slate-350 transition-colors duration-500">
-                      High-resolution 4K render in 3D website user interface design. Smart clinical exposure assessment system.
+                      A smart clinical exposure assessment system powered by natural language processing and computer vision triggers.
                     </p>
                     
                     <div className="pt-3">
