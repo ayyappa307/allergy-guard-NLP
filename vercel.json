@@ -3,7 +3,14 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "excludeFiles": "{backend/static/**,frontend/**}"
+      }
+    },
+    {
+      "src": "backend/static/**",
+      "use": "@vercel/static"
     },
     {
       "src": "frontend/package.json",
