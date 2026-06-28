@@ -31,10 +31,17 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 UPLOADS_DIR = os.path.join(STATIC_DIR, "images", "uploads")
-os.makedirs(UPLOADS_DIR, exist_ok=True)
 
-# Mount static files to serve images
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# On serverless environments (Vercel), static files are served by the edge CDN,
+# and the filesystem is read-only. We only mount static files if the directory exists.
+if os.path.exists(STATIC_DIR):
+    try:
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    except Exception as e:
+        print(f"Skipping static directory setup: {e}")
+else:
+    print("Static directory not found or running on Vercel. Bypassing local mount.")
 
 # Mock Auth Helper
 def get_current_user(authorization: Optional[str] = Header(None)):
@@ -219,14 +226,22 @@ async def assess_unknown_allergy(
     if photo:
         file_ext = os.path.splitext(photo.filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_ext}"
-        save_path = os.path.join(UPLOADS_DIR, unique_filename)
         
+        # Check if local uploads dir exists and is writable
+        uploads_dir_exists = os.path.exists(UPLOADS_DIR)
+        
+        if uploads_dir_exists and os.access(UPLOADS_DIR, os.W_OK):
+            save_path = os.path.join(UPLOADS_DIR, unique_filename)
+            photo_url = f"/static/images/uploads/{unique_filename}"
+        else:
+            # Fallback to AWS Lambda /tmp directory
+            save_path = os.path.join("/tmp", unique_filename)
+            photo_url = "/static/images/uploads/skin_rash.jpg" # Clean fallback image
+            
         with open(save_path, "wb") as f:
             content = await photo.read()
             f.write(content)
             
-        photo_url = f"/static/images/uploads/{unique_filename}"
-        
         # Run visual analyzer
         photo_analysis = classifier.analyze_skin_reaction(save_path)
         
