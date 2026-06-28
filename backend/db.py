@@ -138,6 +138,12 @@ def init_db():
         
     try:
         cur = conn.cursor()
+        
+        # Drop the medicines table CASCADE once to resolve any mismatched table structure
+        # (This is safe as medicines is read-only static clinical info, which we re-seed).
+        cur.execute("DROP TABLE IF EXISTS medicines CASCADE;")
+        conn.commit()
+        
         # Create Tables
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -178,14 +184,12 @@ def init_db():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS medicines (
                 id VARCHAR PRIMARY KEY,
-                name VARCHAR NOT NULL,
-                brand VARCHAR,
-                type VARCHAR,
-                dosage VARCHAR,
-                severity_suitability VARCHAR,
-                active_ingredients VARCHAR,
+                stage VARCHAR NOT NULL,
+                category VARCHAR NOT NULL,
                 image_path VARCHAR,
-                description TEXT
+                description TEXT,
+                warning TEXT,
+                mapped_allergens JSONB
             );
         """)
         cur.execute("""
@@ -203,7 +207,7 @@ def init_db():
         conn.commit()
 
         # Seed tables if they are empty
-        cur.execute("SELECT COUNT(*) FROM allergens;")
+        cur.execute("SELECT COUNT(*) as count FROM allergens;")
         count_result = fetch_one_dict(cur)
         count = count_result["count"] if count_result else 0
         if count == 0:
@@ -231,11 +235,11 @@ def init_db():
                     (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]))
                 )
 
-            # Seed medicines
+            # Seed medicines (using correct keys matching local_db.json)
             for m in local_data.get("medicines", []):
                 cur.execute(
-                    "INSERT INTO medicines (id, name, brand, type, dosage, severity_suitability, active_ingredients, image_path, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                    (m["id"], m["name"], m.get("brand"), m.get("type"), m.get("dosage"), m.get("severity_suitability"), m.get("active_ingredients"), m.get("image_path"), m.get("description", ""))
+                    "INSERT INTO medicines (id, stage, category, image_path, description, warning, mapped_allergens) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (m["id"], m["stage"], m["category"], m["image_path"], m["description"], m["warning"], json.dumps(m["mapped_allergens"]))
                 )
             
             # Seed users
