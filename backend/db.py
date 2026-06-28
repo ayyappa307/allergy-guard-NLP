@@ -13,7 +13,7 @@ try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
     PSYCOPG2_AVAILABLE = True
-except ImportError as e:
+except Exception as e:
     print(f"psycopg2 import failed (likely missing dynamic libraries on Vercel): {e}")
     PSYCOPG2_AVAILABLE = False
 
