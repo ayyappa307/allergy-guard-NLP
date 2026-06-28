@@ -216,144 +216,193 @@ async def assess_unknown_allergy(
     user = Depends(get_current_user)
 ):
     try:
-        symptom_ids = json.loads(symptoms)
-    except Exception:
-        symptom_ids = []
-        
-    # Save uploaded file and run image classification if present
-    photo_url = None
-    photo_analysis = None
-    if photo:
-        file_ext = os.path.splitext(photo.filename)[1]
-        unique_filename = f"{uuid.uuid4()}{file_ext}"
-        
-        # Check if local uploads dir exists and is writable
-        uploads_dir_exists = os.path.exists(UPLOADS_DIR)
-        
-        if uploads_dir_exists and os.access(UPLOADS_DIR, os.W_OK):
-            save_path = os.path.join(UPLOADS_DIR, unique_filename)
-            photo_url = f"/static/images/uploads/{unique_filename}"
-        else:
-            # Fallback to AWS Lambda /tmp directory
-            save_path = os.path.join("/tmp", unique_filename)
-            photo_url = "/static/images/uploads/skin_rash.jpg" # Clean fallback image
+        try:
+            symptom_ids = json.loads(symptoms)
+        except Exception:
+            symptom_ids = []
             
-        with open(save_path, "wb") as f:
-            content = await photo.read()
-            f.write(content)
+        # Save uploaded file and run image classification if present
+        photo_url = None
+        photo_analysis = None
+        if photo:
+            file_ext = os.path.splitext(photo.filename)[1]
+            unique_filename = f"{uuid.uuid4()}{file_ext}"
             
-        # Run visual analyzer
-        photo_analysis = classifier.analyze_skin_reaction(save_path)
-        
-    # Run spaCy NLP text extraction on free-text inputs
-    extracted_foods = []
-    extracted_symptoms = []
-    
-    if food_text:
-        entities = nlp_engine.extract_entities(food_text)
-        extracted_foods.extend(entities["foods"])
-        
-    if symptom_text:
-        entities = nlp_engine.extract_entities(symptom_text)
-        extracted_symptoms.extend(entities["symptoms"])
-        
-    # Merge direct and extracted elements
-    all_food_ids = list(set(([food_id] if food_id else []) + extracted_foods))
-    all_symptom_ids = list(set(symptom_ids + extracted_symptoms))
-    
-    # Calculate Risk Assessment
-    assessment = scoring.calculate_allergy_assessment(
-        food_ids=all_food_ids,
-        symptom_ids=all_symptom_ids,
-        photo_analysis=photo_analysis
-    )
-    
-    top_allergens = assessment["top_allergens"]
-    severe_symptom_detected = assessment["severe_symptom_detected"]
-    
-    # Generate Guidance and Support Content
-    
-    # A. Doctor's Note Content
-    doctor_note = {
-        "disclaimer": "Educational content for this academic project — not a substitute for an in-person medical evaluation.",
-        "mechanism": "Allergic reactions are hypersensitivity responses triggered when the immune system mistakenly identifies harmless food proteins as threats. Specifically, IgE antibodies bind to the allergen, triggering mast cells to release inflammatory chemicals like histamine. This causes blood vessel dilation (redness, swelling), smooth muscle contraction (difficulty breathing), and skin nerve irritation (itching/hives).",
-        "see_doctor_bullets": [
-            "You experience respiratory distress, throat constriction, or dizziness (anaphylaxis indicators).",
-            "Symptoms recur consistently after consuming specific foods or food families.",
-            "You require clinical diagnostic testing to confirm exact IgE-mediated triggers."
-        ],
-        "allergist_evaluation": "An allergist visit typically involves: a clinical interview, a Skin Prick Test (SPT) where tiny drops of allergen extracts are introduced to the skin surface, an IgE Blood Test to quantify circulating antibodies, or an Oral Food Challenge (OFC) conducted under strict medical supervision."
-    }
-    
-    # B. Food Guidance (avoidances and alternatives)
-    all_foods = db.get_foods()
-    foods_to_avoid = []
-    safe_alternatives_list = []
-    
-    top_allergen_ids = {a["id"] for a in top_allergens}
-    for food in all_foods:
-        triggered = [a_id for a_id in food["allergens"] if a_id in top_allergen_ids]
-        if triggered:
-            foods_to_avoid.append({
-                "id": food["id"],
-                "name": food["name"],
-                "image_path": food["image_path"],
-                "description": food["description"],
-                "triggered_allergens": triggered,
-                "alternatives": food["alternatives"]
-            })
-            for alt in food["alternatives"]:
-                if alt not in [x["name"] for x in safe_alternatives_list]:
-                    safe_alternatives_list.append({"name": alt, "for_food": food["name"]})
-                    
-    # C. Medicine Guidance
-    all_medicines = db.get_medicines()
-    stage_a_meds = []
-    stage_b_meds = []
-    
-    for med in all_medicines:
-        # Match medicines mapping to any of the identified top allergens
-        matched = any(a_id in med["mapped_allergens"] for a_id in top_allergen_ids)
-        if matched or not top_allergen_ids: # Fallback: if no allergens, show generic
-            med_entry = {
-                "category": med["category"],
-                "description": med["description"],
-                "warning": med["warning"],
-                "image_path": med.get("image_path")
-            }
-            if med["stage"] == "A":
-                stage_a_meds.append(med_entry)
+            # Check if local uploads dir exists and is writable
+            uploads_dir_exists = os.path.exists(UPLOADS_DIR)
+            
+            if uploads_dir_exists and os.access(UPLOADS_DIR, os.W_OK):
+                save_path = os.path.join(UPLOADS_DIR, unique_filename)
+                photo_url = f"/static/images/uploads/{unique_filename}"
             else:
-                stage_b_meds.append(med_entry)
+                # Fallback to AWS Lambda /tmp directory
+                save_path = os.path.join("/tmp", unique_filename)
+                photo_url = "/static/images/uploads/skin_rash.jpg" # Clean fallback image
                 
-    # Format Results Package
-    results_package = {
-        "top_allergens": top_allergens,
-        "severe_symptom_detected": severe_symptom_detected,
-        "emergency_alert": severe_symptom_detected,
-        "extracted_foods": extracted_foods,
-        "extracted_symptoms": extracted_symptoms,
-        "photo_analysis": photo_analysis,
-        "doctor_note": doctor_note,
-        "food_guidance": {
-            "avoid": foods_to_avoid,
-            "alternatives": safe_alternatives_list
-        },
-        "medicine_guidance": {
-            "disclaimer": "Confirm with a doctor before using any medication. Dosages and brands are omitted for clinical safety.",
-            "stage_a": stage_a_meds,
-            "stage_b": stage_b_meds
+            with open(save_path, "wb") as f:
+                content = await photo.read()
+                f.write(content)
+                
+            # Run visual analyzer
+            photo_analysis = classifier.analyze_skin_reaction(save_path)
+            
+        # Run free-text NLP keyword extraction
+        extracted_foods = []
+        extracted_symptoms = []
+        
+        if food_text:
+            entities = nlp_engine.extract_entities(food_text)
+            extracted_foods.extend(entities["foods"])
+            
+        if symptom_text:
+            entities = nlp_engine.extract_entities(symptom_text)
+            extracted_symptoms.extend(entities["symptoms"])
+            
+        # Merge direct and extracted elements
+        all_food_ids = list(set(([food_id] if food_id else []) + extracted_foods))
+        all_symptom_ids = list(set(symptom_ids + extracted_symptoms))
+        
+        # Calculate Risk Assessment
+        assessment = scoring.calculate_allergy_assessment(
+            food_ids=all_food_ids,
+            symptom_ids=all_symptom_ids,
+            photo_analysis=photo_analysis
+        )
+        
+        top_allergens = assessment["top_allergens"]
+        severe_symptom_detected = assessment["severe_symptom_detected"]
+        
+        # Generate Guidance and Support Content
+        
+        # A. Doctor's Note Content
+        doctor_note = {
+            "disclaimer": "Educational content for this academic project — not a substitute for an in-person medical evaluation.",
+            "mechanism": "Allergic reactions are hypersensitivity responses triggered when the immune system mistakenly identifies harmless food proteins as threats. Specifically, IgE antibodies bind to the allergen, triggering mast cells to release inflammatory chemicals like histamine. This causes blood vessel dilation (redness, swelling), smooth muscle contraction (difficulty breathing), and skin nerve irritation (itching/hives).",
+            "see_doctor_bullets": [
+                "You experience respiratory distress, throat constriction, or dizziness (anaphylaxis indicators).",
+                "Symptoms recur consistently after consuming specific foods or food families.",
+                "You require clinical diagnostic testing to confirm exact IgE-mediated triggers."
+            ],
+            "allergist_evaluation": "An allergist visit typically involves: a clinical interview, a Skin Prick Test (SPT) where tiny drops of allergen extracts are introduced to the skin surface, an IgE Blood Test to quantify circulating antibodies, or an Oral Food Challenge (OFC) conducted under strict medical supervision."
         }
-    }
-    
-    # Save log entry
-    db.save_query_log(
-        user_id=user["id"],
-        query_text=f"Food: {food_text or ''} | Symptoms: {symptom_text or ''}",
-        selected_symptoms=all_symptom_ids,
-        photo_url=photo_url,
-        photo_analysis=photo_analysis,
-        results=results_package
-    )
-    
-    return results_package
+        
+        # B. Food Guidance (avoidances and alternatives)
+        all_foods = db.get_foods()
+        foods_to_avoid = []
+        safe_alternatives_list = []
+        
+        top_allergen_ids = {a["id"] for a in top_allergens}
+        for food in all_foods:
+            # Ensure allergens list is correctly parsed from JSON/string format
+            food_allergens_field = food["allergens"]
+            if isinstance(food_allergens_field, str):
+                try:
+                    food_allergens = set(json.loads(food_allergens_field))
+                except Exception:
+                    food_allergens = set()
+            elif isinstance(food_allergens_field, list):
+                food_allergens = set(food_allergens_field)
+            else:
+                food_allergens = set()
+                
+            triggered = [a_id for a_id in food_allergens if a_id in top_allergen_ids]
+            if triggered:
+                # Ensure alternatives field is correctly parsed from JSON/string format
+                alternatives_field = food["alternatives"]
+                if isinstance(alternatives_field, str):
+                    try:
+                        alternatives = json.loads(alternatives_field)
+                    except Exception:
+                        alternatives = []
+                elif isinstance(alternatives_field, list):
+                    alternatives = alternatives_field
+                else:
+                    alternatives = []
+                    
+                foods_to_avoid.append({
+                    "id": food["id"],
+                    "name": food["name"],
+                    "image_path": food["image_path"],
+                    "description": food["description"],
+                    "triggered_allergens": triggered,
+                    "alternatives": alternatives
+                })
+                for alt in alternatives:
+                    if alt not in [x["name"] for x in safe_alternatives_list]:
+                        safe_alternatives_list.append({"name": alt, "for_food": food["name"]})
+                        
+        # C. Medicine Guidance
+        all_medicines = db.get_medicines()
+        stage_a_meds = []
+        stage_b_meds = []
+        
+        for med in all_medicines:
+            # Ensure mapped_allergens list is correctly parsed from JSON/string format
+            mapped_allergens_field = med["mapped_allergens"] if "mapped_allergens" in med else med.get("allergens")
+            if isinstance(mapped_allergens_field, str):
+                try:
+                    mapped_allergens = set(json.loads(mapped_allergens_field))
+                except Exception:
+                    mapped_allergens = set()
+            elif isinstance(mapped_allergens_field, list):
+                mapped_allergens = set(mapped_allergens_field)
+            else:
+                mapped_allergens = set()
+                
+            # Match medicines mapping to any of the identified top allergens
+            matched = any(a_id in mapped_allergens for a_id in top_allergen_ids)
+            if matched or not top_allergen_ids: # Fallback: if no allergens, show generic
+                med_entry = {
+                    "category": med["category"],
+                    "description": med["description"],
+                    "warning": med["warning"],
+                    "image_path": med.get("image_path")
+                }
+                if med["stage"] == "A":
+                    stage_a_meds.append(med_entry)
+                else:
+                    stage_b_meds.append(med_entry)
+                    
+        # Format Results Package
+        results_package = {
+            "top_allergens": top_allergens,
+            "severe_symptom_detected": severe_symptom_detected,
+            "emergency_alert": severe_symptom_detected,
+            "extracted_foods": extracted_foods,
+            "extracted_symptoms": extracted_symptoms,
+            "photo_analysis": photo_analysis,
+            "doctor_note": doctor_note,
+            "food_guidance": {
+                "avoid": foods_to_avoid,
+                "alternatives": safe_alternatives_list
+            },
+            "medicine_guidance": {
+                "disclaimer": "Confirm with a doctor before using any medication. Dosages and brands are omitted for clinical safety.",
+                "stage_a": stage_a_meds,
+                "stage_b": stage_b_meds
+            }
+        }
+        
+        # Save log entry
+        db.save_query_log(
+            user_id=user["id"],
+            query_text=f"Food: {food_text or ''} | Symptoms: {symptom_text or ''}",
+            selected_symptoms=all_symptom_ids,
+            photo_url=photo_url,
+            photo_analysis=photo_analysis,
+            results=results_package
+        )
+        
+        return results_package
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "Runtime crash inside assess_unknown_allergy",
+                "message": str(e),
+                "traceback": tb.split("\n")
+            }
+        )
+
