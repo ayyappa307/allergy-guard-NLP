@@ -125,6 +125,7 @@ def save_db(data):
 
 def init_db():
     conn = None
+    cur = None
     try:
         conn = get_connection()
     except Exception as e:
@@ -136,116 +137,116 @@ def init_db():
         return
         
     try:
-        with conn.cursor() as cur:
-            # Create Tables
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id VARCHAR PRIMARY KEY,
-                    email VARCHAR UNIQUE NOT NULL,
-                    password_hash VARCHAR NOT NULL,
-                    created_at TIMESTAMP NOT NULL
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS allergens (
-                    id VARCHAR PRIMARY KEY,
-                    name VARCHAR NOT NULL,
-                    thumbnail_path VARCHAR,
-                    description TEXT
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS symptoms (
-                    id VARCHAR PRIMARY KEY,
-                    name VARCHAR NOT NULL,
-                    severity VARCHAR NOT NULL,
-                    image_path VARCHAR,
-                    description TEXT
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS foods (
-                    id VARCHAR PRIMARY KEY,
-                    name VARCHAR NOT NULL,
-                    image_path VARCHAR,
-                    description TEXT,
-                    ingredients JSONB,
-                    allergens JSONB,
-                    alternatives JSONB
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS medicines (
-                    id VARCHAR PRIMARY KEY,
-                    name VARCHAR NOT NULL,
-                    brand VARCHAR,
-                    type VARCHAR,
-                    dosage VARCHAR,
-                    severity_suitability VARCHAR,
-                    active_ingredients VARCHAR,
-                    image_path VARCHAR,
-                    description TEXT
-                );
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS query_logs (
-                    id VARCHAR PRIMARY KEY,
-                    user_id VARCHAR REFERENCES users(id),
-                    query_text TEXT,
-                    selected_symptoms JSONB,
-                    photo_url VARCHAR,
-                    photo_analysis JSONB,
-                    results JSONB,
-                    created_at TIMESTAMP NOT NULL
-                );
-            """)
+        cur = conn.cursor()
+        # Create Tables
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id VARCHAR PRIMARY KEY,
+                email VARCHAR UNIQUE NOT NULL,
+                password_hash VARCHAR NOT NULL,
+                created_at TIMESTAMP NOT NULL
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS allergens (
+                id VARCHAR PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                thumbnail_path VARCHAR,
+                description TEXT
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS symptoms (
+                id VARCHAR PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                severity VARCHAR NOT NULL,
+                image_path VARCHAR,
+                description TEXT
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS foods (
+                id VARCHAR PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                image_path VARCHAR,
+                description TEXT,
+                ingredients JSONB,
+                allergens JSONB,
+                alternatives JSONB
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS medicines (
+                id VARCHAR PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                brand VARCHAR,
+                type VARCHAR,
+                dosage VARCHAR,
+                severity_suitability VARCHAR,
+                active_ingredients VARCHAR,
+                image_path VARCHAR,
+                description TEXT
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS query_logs (
+                id VARCHAR PRIMARY KEY,
+                user_id VARCHAR REFERENCES users(id),
+                query_text TEXT,
+                selected_symptoms JSONB,
+                photo_url VARCHAR,
+                photo_analysis JSONB,
+                results JSONB,
+                created_at TIMESTAMP NOT NULL
+            );
+        """)
+        conn.commit()
+
+        # Seed tables if they are empty
+        cur.execute("SELECT COUNT(*) FROM allergens;")
+        count_result = fetch_one_dict(cur)
+        count = count_result["count"] if count_result else 0
+        if count == 0:
+            print("Supabase database empty. Auto-seeding tables from local JSON db...")
+            local_data = load_db()
+            
+            # Seed allergens
+            for a in local_data.get("allergens", []):
+                cur.execute(
+                    "INSERT INTO allergens (id, name, thumbnail_path, description) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (a["id"], a["name"], a["thumbnail_path"], a["description"])
+                )
+            
+            # Seed symptoms
+            for s in local_data.get("symptoms", []):
+                cur.execute(
+                    "INSERT INTO symptoms (id, name, severity, image_path, description) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (s["id"], s["name"], s["severity"], s["image_path"], s["description"])
+                )
+
+            # Seed foods
+            for f in local_data.get("foods", []):
+                cur.execute(
+                    "INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]))
+                )
+
+            # Seed medicines
+            for m in local_data.get("medicines", []):
+                cur.execute(
+                    "INSERT INTO medicines (id, name, brand, type, dosage, severity_suitability, active_ingredients, image_path, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (m["id"], m["name"], m.get("brand"), m.get("type"), m.get("dosage"), m.get("severity_suitability"), m.get("active_ingredients"), m.get("image_path"), m.get("description", ""))
+                )
+            
+            # Seed users
+            for u in local_data.get("users", []):
+                cur.execute(
+                    "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (u["id"], u["email"], u["password_hash"], datetime.fromisoformat(u["created_at"]))
+                )
+
             conn.commit()
-
-            # Seed tables if they are empty
-            cur.execute("SELECT COUNT(*) FROM allergens;")
-            count_result = fetch_one_dict(cur)
-            count = count_result["count"] if count_result else 0
-            if count == 0:
-                print("Supabase database empty. Auto-seeding tables from local JSON db...")
-                local_data = load_db()
-                
-                # Seed allergens
-                for a in local_data.get("allergens", []):
-                    cur.execute(
-                        "INSERT INTO allergens (id, name, thumbnail_path, description) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                        (a["id"], a["name"], a["thumbnail_path"], a["description"])
-                    )
-                
-                # Seed symptoms
-                for s in local_data.get("symptoms", []):
-                    cur.execute(
-                        "INSERT INTO symptoms (id, name, severity, image_path, description) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                        (s["id"], s["name"], s["severity"], s["image_path"], s["description"])
-                    )
-
-                # Seed foods
-                for f in local_data.get("foods", []):
-                    cur.execute(
-                        "INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                        (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]))
-                    )
-
-                # Seed medicines
-                for m in local_data.get("medicines", []):
-                    cur.execute(
-                        "INSERT INTO medicines (id, name, brand, type, dosage, severity_suitability, active_ingredients, image_path, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                        (m["id"], m["name"], m.get("brand"), m.get("type"), m.get("dosage"), m.get("severity_suitability"), m.get("active_ingredients"), m.get("image_path"), m.get("description", ""))
-                    )
-                
-                # Seed users
-                for u in local_data.get("users", []):
-                    cur.execute(
-                        "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                        (u["id"], u["email"], u["password_hash"], datetime.fromisoformat(u["created_at"]))
-                    )
-
-                conn.commit()
-                print("Supabase database successfully initialized and seeded.")
+            print("Supabase database successfully initialized and seeded.")
     except Exception as e:
         print(f"Error seeding Supabase database: {e}")
         if conn:
@@ -254,6 +255,11 @@ def init_db():
             except Exception:
                 pass
     finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
         if conn:
             try:
                 conn.close()
@@ -283,27 +289,30 @@ def create_user(email, password_hash):
         return user
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            user_id = str(uuid.uuid4())
-            created_at = datetime.utcnow()
-            cur.execute(
-                "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) RETURNING *;",
-                (user_id, email, password_hash, created_at)
-            )
-            user = fetch_one_dict(cur)
-            conn.commit()
-            if user:
-                if isinstance(user["created_at"], str):
-                    pass
-                else:
-                    user["created_at"] = user["created_at"].isoformat()
-            return user
+        cur = conn.cursor()
+        user_id = str(uuid.uuid4())
+        created_at = datetime.utcnow()
+        cur.execute(
+            "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) RETURNING *;",
+            (user_id, email, password_hash, created_at)
+        )
+        user = fetch_one_dict(cur)
+        conn.commit()
+        if user:
+            if isinstance(user["created_at"], str):
+                pass
+            else:
+                user["created_at"] = user["created_at"].isoformat()
+        return user
     except Exception as e:
         print(f"Error creating user in PostgreSQL: {e}")
         conn.rollback()
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 def get_user_by_email(email):
@@ -315,20 +324,23 @@ def get_user_by_email(email):
         return None
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s);", (email,))
-            user = fetch_one_dict(cur)
-            if user:
-                if isinstance(user["created_at"], str):
-                    pass
-                else:
-                    user["created_at"] = user["created_at"].isoformat()
-            return user
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s);", (email,))
+        user = fetch_one_dict(cur)
+        if user:
+            if isinstance(user["created_at"], str):
+                pass
+            else:
+                user["created_at"] = user["created_at"].isoformat()
+        return user
     except Exception as e:
         print(f"Error fetching user by email from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 def get_user_by_id(user_id):
@@ -340,20 +352,23 @@ def get_user_by_id(user_id):
         return None
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
-            user = fetch_one_dict(cur)
-            if user:
-                if isinstance(user["created_at"], str):
-                    pass
-                else:
-                    user["created_at"] = user["created_at"].isoformat()
-            return user
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
+        user = fetch_one_dict(cur)
+        if user:
+            if isinstance(user["created_at"], str):
+                pass
+            else:
+                user["created_at"] = user["created_at"].isoformat()
+        return user
     except Exception as e:
         print(f"Error fetching user by ID from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 # --- ALLERGENS ---
@@ -364,14 +379,17 @@ def get_allergens():
         return db["allergens"]
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM allergens;")
-            return fetch_all_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM allergens;")
+        return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching allergens from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 def get_allergen_by_id(allergen_id):
@@ -383,14 +401,17 @@ def get_allergen_by_id(allergen_id):
         return None
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM allergens WHERE id = %s;", (allergen_id,))
-            return fetch_one_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM allergens WHERE id = %s;", (allergen_id,))
+        return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching allergen by ID from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 # --- FOODS ---
@@ -401,14 +422,17 @@ def get_foods():
         return db["foods"]
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM foods;")
-            return fetch_all_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM foods;")
+        return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching foods from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 def get_food_by_id(food_id):
@@ -420,14 +444,17 @@ def get_food_by_id(food_id):
         return None
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM foods WHERE id = %s;", (food_id,))
-            return fetch_one_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM foods WHERE id = %s;", (food_id,))
+        return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching food by ID from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 # --- SYMPTOMS ---
@@ -438,14 +465,17 @@ def get_symptoms():
         return db["symptoms"]
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM symptoms;")
-            return fetch_all_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM symptoms;")
+        return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching symptoms from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 def get_symptom_by_id(symptom_id):
@@ -457,14 +487,17 @@ def get_symptom_by_id(symptom_id):
         return None
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM symptoms WHERE id = %s;", (symptom_id,))
-            return fetch_one_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM symptoms WHERE id = %s;", (symptom_id,))
+        return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching symptom by ID from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 # --- MEDICINES ---
@@ -475,14 +508,17 @@ def get_medicines():
         return db["medicines"]
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM medicines;")
-            return fetch_all_dict(cur)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM medicines;")
+        return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching medicines from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
 
 # --- QUERY LOGS ---
@@ -505,32 +541,33 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
         return log_entry
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            # Ensure user record exists in PostgreSQL to satisfy the foreign key constraint
-            email = "patient@allergyguard.org" if user_id == "mock-user-123" else f"{user_id}@allergyguard.org"
-            cur.execute(
-                "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                (user_id, email, "mock-password-hash", datetime.utcnow())
-            )
-            
-            log_id = str(uuid.uuid4())
-            created_at = datetime.utcnow()
-            cur.execute(
-                """
-                INSERT INTO query_logs (id, user_id, query_text, selected_symptoms, photo_url, photo_analysis, results, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;
-                """,
-                (log_id, user_id, query_text, json.dumps(selected_symptoms), photo_url, json.dumps(photo_analysis), json.dumps(results), created_at)
-            )
-            log = fetch_one_dict(cur)
-            conn.commit()
-            if log:
-                if isinstance(log["created_at"], str):
-                    pass
-                else:
-                    log["created_at"] = log["created_at"].isoformat()
-            return log
+        cur = conn.cursor()
+        # Ensure user record exists in PostgreSQL to satisfy the foreign key constraint
+        email = "patient@allergyguard.org" if user_id == "mock-user-123" else f"{user_id}@allergyguard.org"
+        cur.execute(
+            "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+            (user_id, email, "mock-password-hash", datetime.utcnow())
+        )
+        
+        log_id = str(uuid.uuid4())
+        created_at = datetime.utcnow()
+        cur.execute(
+            """
+            INSERT INTO query_logs (id, user_id, query_text, selected_symptoms, photo_url, photo_analysis, results, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;
+            """,
+            (log_id, user_id, query_text, json.dumps(selected_symptoms), photo_url, json.dumps(photo_analysis), json.dumps(results), created_at)
+        )
+        log = fetch_one_dict(cur)
+        conn.commit()
+        if log:
+            if isinstance(log["created_at"], str):
+                pass
+            else:
+                log["created_at"] = log["created_at"].isoformat()
+        return log
     except Exception as e:
         print(f"Error saving query log in PostgreSQL: {e}")
         if conn:
@@ -540,6 +577,8 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
                 pass
         raise e
     finally:
+        if cur:
+            cur.close()
         if conn:
             try:
                 conn.close()
@@ -554,18 +593,21 @@ def get_query_logs(user_id):
         return logs
 
     conn = get_connection()
+    cur = None
     try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM query_logs WHERE user_id = %s ORDER BY created_at DESC;", (user_id,))
-            logs = fetch_all_dict(cur)
-            for log in logs:
-                if isinstance(log["created_at"], str):
-                    pass
-                else:
-                    log["created_at"] = log["created_at"].isoformat()
-            return list(logs)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM query_logs WHERE user_id = %s ORDER BY created_at DESC;", (user_id,))
+        logs = fetch_all_dict(cur)
+        for log in logs:
+            if isinstance(log["created_at"], str):
+                pass
+            else:
+                log["created_at"] = log["created_at"].isoformat()
+        return list(logs)
     except Exception as e:
         print(f"Error fetching query logs from PostgreSQL: {e}")
         raise e
     finally:
+        if cur:
+            cur.close()
         conn.close()
