@@ -2,38 +2,92 @@ import os
 import json
 import uuid
 from datetime import datetime
+from urllib.parse import urlparse
+
 # Local DB File Path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "local_db.json")
 
 # Database URL from environment variables (Supabase)
 POSTGRES_URL = os.environ.get("POSTGRES_URL") or os.environ.get("DATABASE_URL")
+USE_POSTGRES = bool(POSTGRES_URL)
 
-try:
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-    PSYCOPG2_AVAILABLE = True
-except Exception as e:
-    print(f"psycopg2 import failed (likely missing dynamic libraries on Vercel): {e}")
-    PSYCOPG2_AVAILABLE = False
-
-USE_POSTGRES = bool(POSTGRES_URL) and PSYCOPG2_AVAILABLE
+# Check which database drivers are available
+DB_DRIVER = "local"
+if USE_POSTGRES:
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        DB_DRIVER = "psycopg2"
+    except Exception:
+        try:
+            import pg8000.dbapi
+            DB_DRIVER = "pg8000"
+        except Exception:
+            DB_DRIVER = "local"
 
 def get_connection():
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         return None
     url = POSTGRES_URL
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
-    
-    # Supabase requires SSL connection
-    if "sslmode" not in url:
-        if "?" in url:
-            url += "&sslmode=require"
-        else:
-            url += "?sslmode=require"
-            
-    return psycopg2.connect(url, cursor_factory=RealDictCursor)
+        
+    if DB_DRIVER == "psycopg2":
+        if "sslmode" not in url:
+            if "?" in url:
+                url += "&sslmode=require"
+            else:
+                url += "?sslmode=require"
+        return psycopg2.connect(url, cursor_factory=RealDictCursor)
+        
+    elif DB_DRIVER == "pg8000":
+        # Parse credentials from URL for pg8000
+        parsed = urlparse(url)
+        username = parsed.username
+        password = parsed.password
+        database = parsed.path.lstrip('/')
+        hostname = parsed.hostname
+        port = parsed.port or 5432
+        
+        # Configure SSL context for Supabase
+        import ssl
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        
+        return pg8000.dbapi.connect(
+            user=username,
+            password=password,
+            host=hostname,
+            database=database,
+            port=port,
+            ssl_context=ssl_context
+        )
+    return None
+
+# --- DUAL-DRIVER CURSOR COMPATIBILITY HELPERS ---
+
+def fetch_all_dict(cursor):
+    if DB_DRIVER == "psycopg2":
+        return list(cursor.fetchall())
+    else:
+        desc = cursor.description
+        if not desc:
+            return []
+        columns = [col[0].decode('utf-8') if isinstance(col[0], bytes) else col[0] for col in desc]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+def fetch_one_dict(cursor):
+    if DB_DRIVER == "psycopg2":
+        return cursor.fetchone()
+    else:
+        desc = cursor.description
+        if not desc:
+            return None
+        columns = [col[0].decode('utf-8') if isinstance(col[0], bytes) else col[0] for col in desc]
+        row = cursor.fetchone()
+        return dict(zip(columns, row)) if row else None
 
 # --- LOCAL FILE DB FALLBACK ---
 
@@ -146,7 +200,9 @@ def init_db():
 
             # Seed tables if they are empty
             cur.execute("SELECT COUNT(*) FROM allergens;")
-            if cur.fetchone()["count"] == 0:
+            count_result = fetch_one_dict(cur)
+            count = count_result["count"] if count_result else 0
+            if count == 0:
                 print("Supabase database empty. Auto-seeding tables from local JSON db...")
                 local_data = load_db()
                 
@@ -202,13 +258,13 @@ def init_db():
                 pass
 
 # Auto-run table initialization if database connection environment is set
-if USE_POSTGRES:
+if DB_DRIVER != "local":
     init_db()
 
 # --- USER AUTH ENTITIES ---
 
 def create_user(email, password_hash):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for u in db["users"]:
             if u["email"].lower() == email.lower():
@@ -232,10 +288,13 @@ def create_user(email, password_hash):
                 "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) RETURNING *;",
                 (user_id, email, password_hash, created_at)
             )
-            user = cur.fetchone()
+            user = fetch_one_dict(cur)
             conn.commit()
             if user:
-                user["created_at"] = user["created_at"].isoformat()
+                if isinstance(user["created_at"], str):
+                    pass
+                else:
+                    user["created_at"] = user["created_at"].isoformat()
             return user
     except Exception as e:
         print(f"Error creating user in PostgreSQL: {e}")
@@ -245,7 +304,7 @@ def create_user(email, password_hash):
         conn.close()
 
 def get_user_by_email(email):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for u in db["users"]:
             if u["email"].lower() == email.lower():
@@ -256,9 +315,12 @@ def get_user_by_email(email):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s);", (email,))
-            user = cur.fetchone()
+            user = fetch_one_dict(cur)
             if user:
-                user["created_at"] = user["created_at"].isoformat()
+                if isinstance(user["created_at"], str):
+                    pass
+                else:
+                    user["created_at"] = user["created_at"].isoformat()
             return user
     except Exception as e:
         print(f"Error fetching user by email from PostgreSQL: {e}")
@@ -267,7 +329,7 @@ def get_user_by_email(email):
         conn.close()
 
 def get_user_by_id(user_id):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for u in db["users"]:
             if u["id"] == user_id:
@@ -278,9 +340,12 @@ def get_user_by_id(user_id):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
-            user = cur.fetchone()
+            user = fetch_one_dict(cur)
             if user:
-                user["created_at"] = user["created_at"].isoformat()
+                if isinstance(user["created_at"], str):
+                    pass
+                else:
+                    user["created_at"] = user["created_at"].isoformat()
             return user
     except Exception as e:
         print(f"Error fetching user by ID from PostgreSQL: {e}")
@@ -291,7 +356,7 @@ def get_user_by_id(user_id):
 # --- ALLERGENS ---
 
 def get_allergens():
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         return db["allergens"]
 
@@ -299,7 +364,7 @@ def get_allergens():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM allergens;")
-            return list(cur.fetchall())
+            return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching allergens from PostgreSQL: {e}")
         raise e
@@ -307,7 +372,7 @@ def get_allergens():
         conn.close()
 
 def get_allergen_by_id(allergen_id):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for a in db["allergens"]:
             if a["id"] == allergen_id:
@@ -318,7 +383,7 @@ def get_allergen_by_id(allergen_id):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM allergens WHERE id = %s;", (allergen_id,))
-            return cur.fetchone()
+            return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching allergen by ID from PostgreSQL: {e}")
         raise e
@@ -328,7 +393,7 @@ def get_allergen_by_id(allergen_id):
 # --- FOODS ---
 
 def get_foods():
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         return db["foods"]
 
@@ -336,7 +401,7 @@ def get_foods():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM foods;")
-            return list(cur.fetchall())
+            return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching foods from PostgreSQL: {e}")
         raise e
@@ -344,7 +409,7 @@ def get_foods():
         conn.close()
 
 def get_food_by_id(food_id):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for f in db["foods"]:
             if f["id"] == food_id:
@@ -355,7 +420,7 @@ def get_food_by_id(food_id):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM foods WHERE id = %s;", (food_id,))
-            return cur.fetchone()
+            return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching food by ID from PostgreSQL: {e}")
         raise e
@@ -365,7 +430,7 @@ def get_food_by_id(food_id):
 # --- SYMPTOMS ---
 
 def get_symptoms():
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         return db["symptoms"]
 
@@ -373,7 +438,7 @@ def get_symptoms():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM symptoms;")
-            return list(cur.fetchall())
+            return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching symptoms from PostgreSQL: {e}")
         raise e
@@ -381,7 +446,7 @@ def get_symptoms():
         conn.close()
 
 def get_symptom_by_id(symptom_id):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         for s in db["symptoms"]:
             if s["id"] == symptom_id:
@@ -392,7 +457,7 @@ def get_symptom_by_id(symptom_id):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM symptoms WHERE id = %s;", (symptom_id,))
-            return cur.fetchone()
+            return fetch_one_dict(cur)
     except Exception as e:
         print(f"Error fetching symptom by ID from PostgreSQL: {e}")
         raise e
@@ -402,7 +467,7 @@ def get_symptom_by_id(symptom_id):
 # --- MEDICINES ---
 
 def get_medicines():
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         return db["medicines"]
 
@@ -410,7 +475,7 @@ def get_medicines():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM medicines;")
-            return list(cur.fetchall())
+            return fetch_all_dict(cur)
     except Exception as e:
         print(f"Error fetching medicines from PostgreSQL: {e}")
         raise e
@@ -420,7 +485,7 @@ def get_medicines():
 # --- QUERY LOGS ---
 
 def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_analysis, results):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         log_entry = {
             "id": str(uuid.uuid4()),
@@ -439,6 +504,13 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
     conn = get_connection()
     try:
         with conn.cursor() as cur:
+            # Ensure user record exists in PostgreSQL to satisfy the foreign key constraint
+            email = "patient@allergyguard.org" if user_id == "mock-user-123" else f"{user_id}@allergyguard.org"
+            cur.execute(
+                "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                (user_id, email, "mock-password-hash", datetime.utcnow())
+            )
+            
             log_id = str(uuid.uuid4())
             created_at = datetime.utcnow()
             cur.execute(
@@ -448,20 +520,31 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
                 """,
                 (log_id, user_id, query_text, json.dumps(selected_symptoms), photo_url, json.dumps(photo_analysis), json.dumps(results), created_at)
             )
-            log = cur.fetchone()
+            log = fetch_one_dict(cur)
             conn.commit()
             if log:
-                log["created_at"] = log["created_at"].isoformat()
+                if isinstance(log["created_at"], str):
+                    pass
+                else:
+                    log["created_at"] = log["created_at"].isoformat()
             return log
     except Exception as e:
         print(f"Error saving query log in PostgreSQL: {e}")
-        conn.rollback()
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         raise e
     finally:
-        conn.close()
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 def get_query_logs(user_id):
-    if not USE_POSTGRES:
+    if DB_DRIVER == "local":
         db = load_db()
         logs = [log for log in db["query_logs"] if log["user_id"] == user_id]
         logs.sort(key=lambda x: x["created_at"], reverse=True)
@@ -471,9 +554,12 @@ def get_query_logs(user_id):
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM query_logs WHERE user_id = %s ORDER BY created_at DESC;", (user_id,))
-            logs = cur.fetchall()
+            logs = fetch_all_dict(cur)
             for log in logs:
-                log["created_at"] = log["created_at"].isoformat()
+                if isinstance(log["created_at"], str):
+                    pass
+                else:
+                    log["created_at"] = log["created_at"].isoformat()
             return list(logs)
     except Exception as e:
         print(f"Error fetching query logs from PostgreSQL: {e}")
