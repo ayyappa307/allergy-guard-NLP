@@ -299,10 +299,12 @@ export default function App() {
       setAuthEmail("");
       setAuthPassword("");
       setAuthName("");
+      setActiveTab("home");
     } catch (err) {
       setAuthError(err.message || "Authentication failed");
     }
   }
+
 
   function handleLogout() {
     logoutUser();
