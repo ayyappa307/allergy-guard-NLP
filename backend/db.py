@@ -2,16 +2,22 @@ import os
 import json
 import uuid
 from datetime import datetime
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
 # Local DB File Path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "local_db.json")
 
 # Database URL from environment variables (Supabase)
 POSTGRES_URL = os.environ.get("POSTGRES_URL") or os.environ.get("DATABASE_URL")
-USE_POSTGRES = bool(POSTGRES_URL)
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    PSYCOPG2_AVAILABLE = True
+except ImportError as e:
+    print(f"psycopg2 import failed (likely missing dynamic libraries on Vercel): {e}")
+    PSYCOPG2_AVAILABLE = False
+
+USE_POSTGRES = bool(POSTGRES_URL) and PSYCOPG2_AVAILABLE
 
 def get_connection():
     if not USE_POSTGRES:
