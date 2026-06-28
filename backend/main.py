@@ -56,11 +56,12 @@ def get_current_user(authorization: Optional[str] = Header(None)):
     user = db.get_user_by_email(email)
     if not user:
         # Create user on the fly to simplify local development setup
-        user = db.create_user(email, "mock_password_hash")
+        user = db.create_user("Mock User", email, "mock_password_hash")
     return user
 
 # Pydantic schemas
 class RegisterRequest(BaseModel):
+    name: str
     email: str
     password: str
 
@@ -94,17 +95,18 @@ def register(req: RegisterRequest):
         raise HTTPException(status_code=400, detail="User already registered")
     # Simple hash representation
     password_hash = f"hashed_{req.password}"
-    new_user = db.create_user(req.email, password_hash)
+    new_user = db.create_user(req.name, req.email, password_hash)
     if not new_user:
         raise HTTPException(status_code=500, detail="Registration failed")
-    return {"token": new_user["email"], "email": new_user["email"], "id": new_user["id"]}
+    return {"token": new_user["email"], "email": new_user["email"], "id": new_user["id"], "name": new_user.get("name")}
 
 @app.post("/api/auth/login")
 def login(req: LoginRequest):
     user = db.get_user_by_email(req.email)
     if not user or user["password_hash"] != f"hashed_{req.password}":
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    return {"token": user["email"], "email": user["email"], "id": user["id"]}
+    return {"token": user["email"], "email": user["email"], "id": user["id"], "name": user.get("name")}
+
 
 @app.get("/api/auth/profile")
 def get_profile(user = Depends(get_current_user)):

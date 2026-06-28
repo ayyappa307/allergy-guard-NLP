@@ -189,8 +189,10 @@ export default function App() {
   // Auth state
   const [userToken, setUserToken] = useState(localStorage.getItem("allergyguard_token"));
   const [userEmail, setUserEmail] = useState(localStorage.getItem("allergyguard_email"));
+  const [userName, setUserName] = useState(localStorage.getItem("allergyguard_name") || "");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
   const [authMode, setAuthMode] = useState("login"); // login | register
   const [authError, setAuthError] = useState("");
 
@@ -289,12 +291,14 @@ export default function App() {
       if (authMode === "login") {
         data = await loginUser(authEmail, authPassword);
       } else {
-        data = await registerUser(authEmail, authPassword);
+        data = await registerUser(authName, authEmail, authPassword);
       }
       setUserToken(data.token);
       setUserEmail(data.email);
+      setUserName(data.name || "");
       setAuthEmail("");
       setAuthPassword("");
+      setAuthName("");
     } catch (err) {
       setAuthError(err.message || "Authentication failed");
     }
@@ -304,6 +308,7 @@ export default function App() {
     logoutUser();
     setUserToken(null);
     setUserEmail(null);
+    setUserName("");
     setHistoryLogs([]);
   }
 
@@ -2312,6 +2317,20 @@ export default function App() {
                         </div>
                       )}
 
+                      {authMode === "register" && (
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block">Full Name</label>
+                          <input 
+                            type="text"
+                            required
+                            value={authName}
+                            onChange={e => setAuthName(e.target.value)}
+                            placeholder="John Doe"
+                            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-clinical-teal-500 transition-colors duration-500"
+                          />
+                        </div>
+                      )}
+
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block">Email Address</label>
                         <input 
@@ -2360,11 +2379,12 @@ export default function App() {
                     {/* User Card */}
                     <div className="md:col-span-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4 self-start transition-colors duration-500">
                       <div className="text-center space-y-1">
-                        <div className="w-16 h-16 rounded-full bg-clinical-teal-50 dark:bg-clinical-teal-950/40 text-clinical-teal-600 dark:text-clinical-teal-455 flex items-center justify-center mx-auto border-2 border-clinical-teal-100 dark:border-clinical-teal-900 font-bold text-lg uppercase">
-                          {userEmail ? userEmail.substring(0, 2) : "PT"}
+                        <div className="w-16 h-16 rounded-full bg-clinical-teal-50 dark:bg-clinical-teal-950/40 text-clinical-teal-600 dark:text-clinical-teal-455 flex items-center justify-center mx-auto border-2 border-clinical-teal-100 dark:border-clinical-teal-900 font-bold text-lg uppercase transition-all duration-500">
+                          {userName ? userName.substring(0, 2) : (userEmail ? userEmail.substring(0, 2) : "PT")}
                         </div>
-                        <h4 className="font-bold text-slate-800 dark:text-white line-clamp-1">{userEmail || "Patient Profile"}</h4>
-                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Patient Status</span>
+                        <h4 className="font-bold text-slate-800 dark:text-white line-clamp-1 transition-colors duration-500">{userName || userEmail || "Patient Profile"}</h4>
+                        {userName && <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 transition-colors duration-500">{userEmail}</p>}
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider inline-block mt-1 transition-colors duration-500">Patient Status</span>
                       </div>
                       
                       <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-center">

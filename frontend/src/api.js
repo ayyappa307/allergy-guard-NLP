@@ -28,11 +28,11 @@ export async function fetchFoods() {
   return res.json();
 }
 
-export async function registerUser(email, password) {
+export async function registerUser(name, email, password) {
   const res = await fetch(`${API_BASE}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ name, email, password })
   });
   if (!res.ok) {
     const err = await res.json();
@@ -41,6 +41,9 @@ export async function registerUser(email, password) {
   const data = await res.json();
   localStorage.setItem("allergyguard_token", data.token);
   localStorage.setItem("allergyguard_email", data.email);
+  if (data.name) {
+    localStorage.setItem("allergyguard_name", data.name);
+  }
   return data;
 }
 
@@ -57,13 +60,18 @@ export async function loginUser(email, password) {
   const data = await res.json();
   localStorage.setItem("allergyguard_token", data.token);
   localStorage.setItem("allergyguard_email", data.email);
+  if (data.name) {
+    localStorage.setItem("allergyguard_name", data.name);
+  }
   return data;
 }
 
 export function logoutUser() {
   localStorage.removeItem("allergyguard_token");
   localStorage.removeItem("allergyguard_email");
+  localStorage.removeItem("allergyguard_name");
 }
+
 
 export async function fetchUserLogs() {
   const res = await fetch(`${API_BASE}/api/logs`, {

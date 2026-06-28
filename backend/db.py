@@ -139,8 +139,9 @@ def init_db():
     try:
         cur = conn.cursor()
         
-        # Drop the medicines table CASCADE once to resolve any mismatched table structure
-        # (This is safe as medicines is read-only static clinical info, which we re-seed).
+        # Drop the medicines, users, and query_logs tables cascade to recreate them safely with the name field
+        cur.execute("DROP TABLE IF EXISTS query_logs CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS users CASCADE;")
         cur.execute("DROP TABLE IF EXISTS medicines CASCADE;")
         conn.commit()
         
@@ -148,6 +149,7 @@ def init_db():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id VARCHAR PRIMARY KEY,
+                name VARCHAR,
                 email VARCHAR UNIQUE NOT NULL,
                 password_hash VARCHAR NOT NULL,
                 created_at TIMESTAMP NOT NULL
@@ -195,7 +197,7 @@ def init_db():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS query_logs (
                 id VARCHAR PRIMARY KEY,
-                user_id VARCHAR REFERENCES users(id),
+                user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE,
                 query_text TEXT,
                 selected_symptoms JSONB,
                 photo_url VARCHAR,
@@ -245,8 +247,8 @@ def init_db():
             # Seed users
             for u in local_data.get("users", []):
                 cur.execute(
-                    "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                    (u["id"], u["email"], u["password_hash"], datetime.fromisoformat(u["created_at"]))
+                    "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (u["id"], u.get("name", "Default User"), u["email"], u["password_hash"], datetime.fromisoformat(u["created_at"]))
                 )
 
             conn.commit()
@@ -276,7 +278,7 @@ if DB_DRIVER != "local":
 
 # --- USER AUTH ENTITIES ---
 
-def create_user(email, password_hash):
+def create_user(name, email, password_hash):
     if DB_DRIVER == "local":
         db = load_db()
         for u in db["users"]:
@@ -284,6 +286,7 @@ def create_user(email, password_hash):
                 return None
         user = {
             "id": str(uuid.uuid4()),
+            "name": name,
             "email": email,
             "password_hash": password_hash,
             "created_at": datetime.utcnow().isoformat()
@@ -299,8 +302,8 @@ def create_user(email, password_hash):
         user_id = str(uuid.uuid4())
         created_at = datetime.utcnow()
         cur.execute(
-            "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) RETURNING *;",
-            (user_id, email, password_hash, created_at)
+            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+            (user_id, name, email, password_hash, created_at)
         )
         user = fetch_one_dict(cur)
         conn.commit()
@@ -550,9 +553,10 @@ def save_query_log(user_id, query_text, selected_symptoms, photo_url, photo_anal
         cur = conn.cursor()
         # Ensure user record exists in PostgreSQL to satisfy the foreign key constraint
         email = "patient@allergyguard.org" if user_id == "mock-user-123" else f"{user_id}@allergyguard.org"
+        name = "Mock Guest" if user_id == "mock-user-123" else "Registered Patient"
         cur.execute(
-            "INSERT INTO users (id, email, password_hash, created_at) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-            (user_id, email, "mock-password-hash", datetime.utcnow())
+            "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+            (user_id, name, email, "mock-password-hash", datetime.utcnow())
         )
         
         log_id = str(uuid.uuid4())
