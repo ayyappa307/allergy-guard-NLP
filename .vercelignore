@@ -1,0 +1,14 @@
+# Exclude frontend node modules and dist from serverless function zips
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Exclude python venvs and caches
+**/__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# Exclude local test assets
+backend/test.jpg
