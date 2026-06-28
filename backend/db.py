@@ -115,8 +115,11 @@ def load_db():
         }
 
 def save_db(data):
-    with open(DB_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    try:
+        with open(DB_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"Warning: Could not write to local database file (likely read-only filesystem on Vercel): {e}")
 
 # --- AUTO-DB SCHEMA CREATOR & MIGRATOR ---
 
