@@ -61,10 +61,15 @@ def save_db(data):
 # --- AUTO-DB SCHEMA CREATOR & MIGRATOR ---
 
 def init_db():
+    conn = None
     try:
         conn = get_connection()
     except Exception as e:
         print(f"Error connecting to Supabase during initialization: {e}")
+        return
+
+    if not conn:
+        print("Database connection returned None. Skipping initialization.")
         return
         
     try:
@@ -178,9 +183,17 @@ def init_db():
                 print("Supabase database successfully initialized and seeded.")
     except Exception as e:
         print(f"Error seeding Supabase database: {e}")
-        conn.rollback()
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
     finally:
-        conn.close()
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 # Auto-run table initialization if database connection environment is set
 if USE_POSTGRES:
