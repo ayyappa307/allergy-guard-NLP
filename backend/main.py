@@ -186,7 +186,18 @@ def assess_known_allergies(req: KnownAssessRequest):
     stage_b_meds = []
     
     for med in all_medicines:
-        matched = any(a_id in med["mapped_allergens"] for a_id in selected_allergens)
+        mapped_allergens_field = med.get("mapped_allergens")
+        if isinstance(mapped_allergens_field, str):
+            try:
+                mapped_allergens = set(json.loads(mapped_allergens_field))
+            except Exception:
+                mapped_allergens = set()
+        elif isinstance(mapped_allergens_field, list):
+            mapped_allergens = set(mapped_allergens_field)
+        else:
+            mapped_allergens = set()
+            
+        matched = any(a_id in mapped_allergens for a_id in selected_allergens)
         if matched or not selected_allergens:
             med_entry = {
                 "category": med["category"],

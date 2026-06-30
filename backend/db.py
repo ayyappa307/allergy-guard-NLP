@@ -213,6 +213,42 @@ def init_db():
         """)
         conn.commit()
 
+        # Check and add missing columns to foods table if they don't exist
+        try:
+            cur = conn.cursor()
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS protein_grams INTEGER DEFAULT 0;")
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS protein_pct INTEGER DEFAULT 0;")
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS calories INTEGER DEFAULT 0;")
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS carbs_grams INTEGER DEFAULT 0;")
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS fats_grams INTEGER DEFAULT 0;")
+            cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS ingredients JSONB;")
+            conn.commit()
+            print("Successfully migrated foods table columns in PostgreSQL.")
+        except Exception as e:
+            print(f"Error checking/migrating foods table columns: {e}")
+            if conn:
+                conn.rollback()
+
+        # Always synchronize foods table nutritional values and ingredients from local_db.json to PostgreSQL
+        try:
+            cur = conn.cursor()
+            local_data = load_db()
+            for f in local_data.get("foods", []):
+                cur.execute(
+                    """
+                    UPDATE foods 
+                    SET protein_grams = %s, protein_pct = %s, calories = %s, carbs_grams = %s, fats_grams = %s, ingredients = %s
+                    WHERE id = %s;
+                    """,
+                    (f.get("protein_grams", 0), f.get("protein_pct", 0), f.get("calories", 0), f.get("carbs_grams", 0), f.get("fats_grams", 0), json.dumps(f.get("ingredients", [])), f["id"])
+                )
+            conn.commit()
+            print("Successfully synchronized foods data to PostgreSQL.")
+        except Exception as e:
+            print(f"Error synchronizing foods data to PostgreSQL: {e}")
+            if conn:
+                conn.rollback()
+
         # Seed tables if they are empty
         cur.execute("SELECT COUNT(*) as count FROM allergens;")
         count_result = fetch_one_dict(cur)
