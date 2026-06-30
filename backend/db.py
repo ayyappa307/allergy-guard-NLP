@@ -213,7 +213,7 @@ def init_db():
         """)
         conn.commit()
 
-        # Check and add missing columns to foods table if they don't exist
+        # Check and add missing columns to tables if they don't exist (migrations)
         try:
             cur = conn.cursor()
             cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS protein_grams INTEGER DEFAULT 0;")
@@ -222,80 +222,107 @@ def init_db():
             cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS carbs_grams INTEGER DEFAULT 0;")
             cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS fats_grams INTEGER DEFAULT 0;")
             cur.execute("ALTER TABLE foods ADD COLUMN IF NOT EXISTS ingredients JSONB;")
+            cur.execute("ALTER TABLE medicines ADD COLUMN IF NOT EXISTS mapped_allergens JSONB;")
             conn.commit()
-            print("Successfully migrated foods table columns in PostgreSQL.")
+            print("Successfully migrated database columns in PostgreSQL.")
         except Exception as e:
-            print(f"Error checking/migrating foods table columns: {e}")
+            print(f"Error checking/migrating database columns: {e}")
             if conn:
                 conn.rollback()
 
-        # Always synchronize foods table nutritional values and ingredients from local_db.json to PostgreSQL
+        # Always synchronize local_db.json data to PostgreSQL (Supabase) tables on initialization
         try:
             cur = conn.cursor()
             local_data = load_db()
-            for f in local_data.get("foods", []):
-                cur.execute(
-                    """
-                    UPDATE foods 
-                    SET protein_grams = %s, protein_pct = %s, calories = %s, carbs_grams = %s, fats_grams = %s, ingredients = %s
-                    WHERE id = %s;
-                    """,
-                    (f.get("protein_grams", 0), f.get("protein_pct", 0), f.get("calories", 0), f.get("carbs_grams", 0), f.get("fats_grams", 0), json.dumps(f.get("ingredients", [])), f["id"])
-                )
-            conn.commit()
-            print("Successfully synchronized foods data to PostgreSQL.")
-        except Exception as e:
-            print(f"Error synchronizing foods data to PostgreSQL: {e}")
-            if conn:
-                conn.rollback()
+            print("Synchronizing local database records to Supabase (PostgreSQL)...")
 
-        # Seed tables if they are empty
-        cur.execute("SELECT COUNT(*) as count FROM allergens;")
-        count_result = fetch_one_dict(cur)
-        count = count_result["count"] if count_result else 0
-        if count == 0:
-            print("Supabase database empty. Auto-seeding tables from local JSON db...")
-            local_data = load_db()
-            
-            # Seed allergens
+            # 1. Sync Allergens
             for a in local_data.get("allergens", []):
                 cur.execute(
-                    "INSERT INTO allergens (id, name, thumbnail_path, description) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    """
+                    INSERT INTO allergens (id, name, thumbnail_path, description)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (id) DO UPDATE
+                    SET name = EXCLUDED.name,
+                        thumbnail_path = EXCLUDED.thumbnail_path,
+                        description = EXCLUDED.description;
+                    """,
                     (a["id"], a["name"], a["thumbnail_path"], a["description"])
                 )
-            
-            # Seed symptoms
+
+            # 2. Sync Symptoms
             for s in local_data.get("symptoms", []):
                 cur.execute(
-                    "INSERT INTO symptoms (id, name, severity, image_path, description) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    """
+                    INSERT INTO symptoms (id, name, severity, image_path, description)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (id) DO UPDATE
+                    SET name = EXCLUDED.name,
+                        severity = EXCLUDED.severity,
+                        image_path = EXCLUDED.image_path,
+                        description = EXCLUDED.description;
+                    """,
                     (s["id"], s["name"], s["severity"], s["image_path"], s["description"])
                 )
 
-            # Seed foods
+            # 3. Sync Foods
             for f in local_data.get("foods", []):
                 cur.execute(
-                    "INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives, protein_grams, protein_pct, calories, carbs_grams, fats_grams) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    """
+                    INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives, protein_grams, protein_pct, calories, carbs_grams, fats_grams)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (id) DO UPDATE
+                    SET name = EXCLUDED.name,
+                        image_path = EXCLUDED.image_path,
+                        description = EXCLUDED.description,
+                        ingredients = EXCLUDED.ingredients,
+                        allergens = EXCLUDED.allergens,
+                        alternatives = EXCLUDED.alternatives,
+                        protein_grams = EXCLUDED.protein_grams,
+                        protein_pct = EXCLUDED.protein_pct,
+                        calories = EXCLUDED.calories,
+                        carbs_grams = EXCLUDED.carbs_grams,
+                        fats_grams = EXCLUDED.fats_grams;
+                    """,
                     (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]), f.get("protein_grams", 0), f.get("protein_pct", 0), f.get("calories", 0), f.get("carbs_grams", 0), f.get("fats_grams", 0))
                 )
 
-            # Seed medicines (using correct keys matching local_db.json)
+            # 4. Sync Medicines
             for m in local_data.get("medicines", []):
                 cur.execute(
-                    "INSERT INTO medicines (id, stage, category, image_path, description, warning, mapped_allergens) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    """
+                    INSERT INTO medicines (id, stage, category, image_path, description, warning, mapped_allergens)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (id) DO UPDATE
+                    SET stage = EXCLUDED.stage,
+                        category = EXCLUDED.category,
+                        image_path = EXCLUDED.image_path,
+                        description = EXCLUDED.description,
+                        warning = EXCLUDED.warning,
+                        mapped_allergens = EXCLUDED.mapped_allergens;
+                    """,
                     (m["id"], m["stage"], m["category"], m["image_path"], m["description"], m["warning"], json.dumps(m["mapped_allergens"]))
                 )
-            
-            # Seed users
+
+            # 5. Sync Users
             for u in local_data.get("users", []):
                 cur.execute(
-                    "INSERT INTO users (id, name, email, password_hash, created_at) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    """
+                    INSERT INTO users (id, name, email, password_hash, created_at)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (id) DO NOTHING;
+                    """,
                     (u["id"], u.get("name", "Default User"), u["email"], u["password_hash"], datetime.fromisoformat(u["created_at"]))
                 )
 
             conn.commit()
-            print("Supabase database successfully initialized and seeded.")
+            print("Supabase database successfully initialized and fully synchronized.")
+        except Exception as e:
+            print(f"Error synchronizing data to PostgreSQL: {e}")
+            if conn:
+                conn.rollback()
     except Exception as e:
-        print(f"Error seeding Supabase database: {e}")
+        print(f"Error initializing/seeding Supabase database: {e}")
         if conn:
             try:
                 conn.rollback()
