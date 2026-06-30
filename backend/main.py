@@ -141,13 +141,30 @@ def assess_known_allergies(req: KnownAssessRequest):
         intersect = food_allergens.intersection(selected_allergens)
         
         if intersect:
+            ingredients_field = food.get("ingredients", [])
+            if isinstance(ingredients_field, str):
+                try:
+                    ingredients = json.loads(ingredients_field)
+                except Exception:
+                    ingredients = []
+            elif isinstance(ingredients_field, list):
+                ingredients = ingredients_field
+            else:
+                ingredients = []
+
             unsafe_foods.append({
                 "id": food["id"],
                 "name": food["name"],
                 "image_path": food["image_path"],
                 "description": food["description"],
                 "triggered_allergens": list(intersect),
-                "alternatives": food["alternatives"]
+                "alternatives": food["alternatives"],
+                "ingredients": ingredients,
+                "protein_grams": food.get("protein_grams", 0),
+                "protein_pct": food.get("protein_pct", 0),
+                "calories": food.get("calories", 0),
+                "carbs_grams": food.get("carbs_grams", 0),
+                "fats_grams": food.get("fats_grams", 0)
             })
         else:
             safe_foods.append(food)
@@ -321,13 +338,30 @@ async def assess_unknown_allergy(
                 else:
                     alternatives = []
                     
+                ingredients_field = food.get("ingredients", [])
+                if isinstance(ingredients_field, str):
+                    try:
+                        ingredients = json.loads(ingredients_field)
+                    except Exception:
+                        ingredients = []
+                elif isinstance(ingredients_field, list):
+                    ingredients = ingredients_field
+                else:
+                    ingredients = []
+
                 foods_to_avoid.append({
                     "id": food["id"],
                     "name": food["name"],
                     "image_path": food["image_path"],
                     "description": food["description"],
                     "triggered_allergens": triggered,
-                    "alternatives": alternatives
+                    "alternatives": alternatives,
+                    "ingredients": ingredients,
+                    "protein_grams": food.get("protein_grams", 0),
+                    "protein_pct": food.get("protein_pct", 0),
+                    "calories": food.get("calories", 0),
+                    "carbs_grams": food.get("carbs_grams", 0),
+                    "fats_grams": food.get("fats_grams", 0)
                 })
                 for alt in alternatives:
                     if alt not in [x["name"] for x in safe_alternatives_list]:

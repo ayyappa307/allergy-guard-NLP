@@ -4,7 +4,7 @@ import {
   Activity, AlertTriangle, CheckCircle, ChevronRight, FileText, 
   History, Info, LogOut, Search, ShieldAlert, User, XCircle, 
   Upload, Image as ImageIcon, Check, RefreshCw, Printer, Plus,
-  Sun, Moon, Stethoscope
+  Sun, Moon, Stethoscope, Star, MapPin
 } from "lucide-react";
 import { 
   fetchAllergens, fetchSymptoms, fetchFoods, 
@@ -12,6 +12,256 @@ import {
   fetchUserLogs, assessKnownAllergies, 
   assessUnknownAllergy, getImageUrl 
 } from "./api";
+
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+
+const ALLERGEN_ALTERNATIVES = {
+  peanuts: "Sunflower seeds, Pumpkin seeds, Soy nuts, Melon seeds",
+  tree_nuts: "Sunflower seeds, Pumpkin seeds, Melon seeds, Sesame seeds",
+  dairy: "Coconut milk, Almond milk, Soy milk, Oat milk",
+  gluten: "Rice flour, Finger millet (Ragi), Sorghum (Jowar), Pearl millet (Bajra)",
+  shellfish: "Fish (if not allergic), Tofu, Lentils, Paneer",
+  eggs: "Applesauce, Mashed banana, Flaxseed paste, Chia seed paste, Yogurt (if dairy safe)",
+  soy: "Chickpeas, Peas, Lentils, Coconut aminos (as soy sauce alternative)",
+  fish: "Chicken, Mutton, Tofu, Paneer, Shellfish (if not allergic)",
+  wheat: "Rice, Corn flour, Quinoa, Tapioca, Oats (gluten-free)",
+  corn: "Tapioca starch, Potato starch, Arrowroot powder",
+  sulfites: "Organic fresh fruits, Preservative-free foods",
+  food_dyes: "Natural color extracts (Beetroot, Turmeric, Spinach, Carrot juice)",
+  msg_sensitivity: "Sea salt, Yeast extract, Mushroom powder, Tomatoes, Celery salt",
+  latex_fruit: "Berries, Apples, Citrus fruits, Grapes",
+  sesame_seeds_oil: "Sunflower seeds/oil, Pumpkin seeds, Olive oil, Groundnut oil",
+  mustard_seeds_oil: "Sesame oil, Sunflower oil, Ground horseradish, Wasabi",
+  coconut: "Dairy milk, Soy milk, Almond milk, Butter, Sesame seeds",
+  curd_yogurt: "Dairy-free yogurt (Coconut yogurt, Soy yogurt, Oat yogurt)",
+  tamarind: "Lemon juice, Lime juice, Dry mango powder (Amchur), Kokum",
+  jaggery: "Brown sugar, White sugar, Maple syrup, Raw honey",
+  prawns_crustaceans: "Salmon, Cod, Paneer, Mushrooms",
+  black_gram: "Yellow Moong Dal, Green Gram (Moong Dal), Bengal Gram (Chana Dal)",
+  green_gram: "Urad Dal (Black Gram), Chana Dal, Toor Dal",
+  chili_capsaicin: "Black pepper, White pepper, Ginger, Garlic, Hing (Asafoetida)",
+  celery: "Fennel bulbs, Carrots, Parsnip, Parsley"
+};
+
+const ALLERGEN_NUTRITION_COMPARISON = {
+  peanuts: [
+    { name: "Peanuts (Allergen)", protein: 26, color: "#ef4444" },
+    { name: "Sunflower Seeds", protein: 21, color: "#10b981" },
+    { name: "Pumpkin Seeds", protein: 19, color: "#06b6d4" },
+    { name: "Soy Nuts", protein: 36, color: "#6366f1" }
+  ],
+  tree_nuts: [
+    { name: "Tree Nuts (Allergen)", protein: 20, color: "#ef4444" },
+    { name: "Sunflower Seeds", protein: 21, color: "#10b981" },
+    { name: "Pumpkin Seeds", protein: 19, color: "#06b6d4" },
+    { name: "Sesame Seeds", protein: 18, color: "#6366f1" }
+  ],
+  dairy: [
+    { name: "Cow Milk (Allergen)", protein: 3.4, color: "#ef4444" },
+    { name: "Soy Milk", protein: 3.3, color: "#10b981" },
+    { name: "Oat Milk", protein: 1.0, color: "#06b6d4" },
+    { name: "Almond Milk", protein: 0.5, color: "#6366f1" }
+  ],
+  gluten: [
+    { name: "Wheat (Allergen)", protein: 12, color: "#ef4444" },
+    { name: "Ragi (Millet)", protein: 7.3, color: "#10b981" },
+    { name: "Jowar (Sorghum)", protein: 10.4, color: "#06b6d4" },
+    { name: "Bajra (Millet)", protein: 11.6, color: "#6366f1" }
+  ],
+  shellfish: [
+    { name: "Shrimp (Allergen)", protein: 24, color: "#ef4444" },
+    { name: "Tofu", protein: 8, color: "#10b981" },
+    { name: "Paneer", protein: 18, color: "#06b6d4" },
+    { name: "Lentils", protein: 9, color: "#6366f1" }
+  ],
+  eggs: [
+    { name: "Whole Egg (Allergen)", protein: 13, color: "#ef4444" },
+    { name: "Tofu (Scramble)", protein: 8, color: "#10b981" },
+    { name: "Chia Seeds", protein: 17, color: "#06b6d4" },
+    { name: "Flaxseeds", protein: 18, color: "#6366f1" }
+  ],
+  soy: [
+    { name: "Soybeans (Allergen)", protein: 36, color: "#ef4444" },
+    { name: "Chickpeas", protein: 19, color: "#10b981" },
+    { name: "Lentils", protein: 26, color: "#06b6d4" },
+    { name: "Green Peas", protein: 5, color: "#6366f1" }
+  ],
+  fish: [
+    { name: "Fish (Allergen)", protein: 22, color: "#ef4444" },
+    { name: "Chicken", protein: 27, color: "#10b981" },
+    { name: "Tofu", protein: 8, color: "#06b6d4" },
+    { name: "Paneer", protein: 18, color: "#6366f1" }
+  ],
+  wheat: [
+    { name: "Wheat (Allergen)", protein: 12, color: "#ef4444" },
+    { name: "Rice", protein: 2.7, color: "#10b981" },
+    { name: "Corn", protein: 3.2, color: "#06b6d4" },
+    { name: "Quinoa", protein: 14, color: "#6366f1" }
+  ],
+  coconut: [
+    { name: "Coconut (Allergen)", protein: 3.3, color: "#ef4444" },
+    { name: "Sunflower Seeds", protein: 21, color: "#10b981" },
+    { name: "Sesame Seeds", protein: 18, color: "#06b6d4" },
+    { name: "Almond Paste", protein: 21, color: "#6366f1" }
+  ]
+};
+
+const getNutritionComparison = (allergenId, allergenName) => {
+  if (ALLERGEN_NUTRITION_COMPARISON[allergenId]) {
+    return ALLERGEN_NUTRITION_COMPARISON[allergenId];
+  }
+  return [
+    { name: `${allergenName} (Allergen)`, protein: 15, color: "#ef4444" },
+    { name: "Sunflower Seeds", protein: 21, color: "#10b981" },
+    { name: "Lentils / Dals", protein: 9, color: "#06b6d4" },
+    { name: "Millets", protein: 11, color: "#6366f1" }
+  ];
+};
+
+const getFoodMeta = (foodId) => {
+  const metas = {
+    pesarattu: { category: "Breakfast", rating: 4.5, distance: "1.8 km" },
+    upma_pesarattu: { category: "Breakfast", rating: 4.6, distance: "1.8 km" },
+    punugulu: { category: "Snack", rating: 4.4, distance: "0.5 km" },
+    dibba_rottu: { category: "Breakfast", rating: 4.3, distance: "2.1 km" },
+    garelu: { category: "Snack", rating: 4.5, distance: "1.2 km" },
+    mirapakaya_bajji: { category: "Snack", rating: 4.7, distance: "0.8 km" },
+    thapala_chekkalu: { category: "Snack", rating: 4.2, distance: "3.2 km" },
+    gunta_ponganalu: { category: "Snack", rating: 4.4, distance: "1.0 km" },
+    hyderabadi_biryani: { category: "Main Course", rating: 4.9, distance: "2.5 km" },
+    kodi_pulao: { category: "Main Course", rating: 4.7, distance: "2.2 km" },
+    pulihora: { category: "Main Course", rating: 4.5, distance: "1.5 km" },
+    ragi_sangati: { category: "Healthy", rating: 4.6, distance: "4.0 km" },
+    mudda_pappu: { category: "Lentils", rating: 4.4, distance: "1.1 km" },
+    ulava_charu: { category: "Soup", rating: 4.5, distance: "3.5 km" },
+    pappu_charu: { category: "Soup", rating: 4.3, distance: "1.6 km" },
+    pulagam: { category: "Breakfast", rating: 4.2, distance: "2.8 km" },
+    majjiga_pulusu: { category: "Stew", rating: 4.3, distance: "1.9 km" },
+    gutti_vankaya_kura: { category: "Curry", rating: 4.8, distance: "2.7 km" },
+    panasa_puttu_koora: { category: "Curry", rating: 4.4, distance: "3.1 km" },
+    pulasa_pulusu: { category: "Seafood", rating: 4.9, distance: "5.0 km" },
+    natu_kodi_pulusu: { category: "Curry", rating: 4.8, distance: "2.4 km" },
+    gongura_mutton: { category: "Curry", rating: 4.8, distance: "3.0 km" },
+    avakaya_pachadi: { category: "Pickle", rating: 4.7, distance: "0.5 km" },
+    gongura_pachadi: { category: "Chutney", rating: 4.6, distance: "0.7 km" },
+    allam_pachadi: { category: "Chutney", rating: 4.5, distance: "1.0 km" },
+    kandi_podi: { category: "Powder", rating: 4.4, distance: "0.9 km" },
+    pootharekulu: { category: "Sweet", rating: 4.9, distance: "4.5 km" },
+    poornam_boorelu: { category: "Sweet", rating: 4.7, distance: "1.4 km" },
+    ariselu: { category: "Sweet", rating: 4.6, distance: "2.0 km" },
+    spiced_majjiga: { category: "Beverage", rating: 4.5, distance: "0.6 km" }
+  };
+  return metas[foodId] || { category: "Regional", rating: 4.5, distance: "2.0 km" };
+};
+
+function FoodItemCard({ food, isSafe }) {
+  const meta = getFoodMeta(food.id);
+  const hasIngredients = food.ingredients && food.ingredients.length > 0;
+  
+  const formatIngredient = (str) => {
+    return str.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  };
+
+  const ingredientsList = hasIngredients 
+    ? food.ingredients.map(formatIngredient).join(", ") 
+    : "No ingredients mapped";
+
+  return (
+    <div className={`bg-white dark:bg-slate-900 border ${
+      isSafe 
+        ? "border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.02)]" 
+        : "border-rose-100 dark:border-rose-955/30 shadow-[0_4px_20px_rgba(244,63,94,0.02)]"
+    } rounded-[24px] overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group`}>
+      {/* Image Container */}
+      <div className="h-44 bg-slate-50 dark:bg-slate-950 relative overflow-hidden flex-shrink-0">
+        <img 
+          src={getImageUrl(food.image_path)} 
+          alt={food.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className={`absolute top-3 right-3 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs ${
+          isSafe ? "bg-clinical-teal-600" : "bg-rose-600"
+        }`}>
+          {isSafe ? "Safe" : "Unsafe"}
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-5 flex-grow flex flex-col justify-between text-left space-y-3.5">
+        {/* Title & Rating Row */}
+        <div>
+          <div className="flex items-start justify-between gap-3">
+            <span className="text-base font-extrabold text-slate-850 dark:text-white leading-snug line-clamp-1">
+              {food.name}
+            </span>
+            <div className="flex items-center gap-1 text-slate-805 dark:text-slate-200 font-extrabold text-xs bg-amber-500/10 dark:bg-amber-400/10 px-2 py-0.5 rounded-lg flex-shrink-0">
+              <Star className="w-3.5 h-3.5 fill-amber-400 stroke-amber-500" />
+              <span>{meta.rating}</span>
+            </div>
+          </div>
+
+          {/* Badge & Distance Row */}
+          <div className="flex items-center justify-between mt-2.5">
+            <span className="text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350 px-2.5 py-1 rounded-md uppercase tracking-wider">
+              {meta.category}
+            </span>
+            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              <span>{meta.distance}</span>
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-slate-100 dark:border-slate-850 my-0.5" />
+
+        {/* Ingredients Section */}
+        <div className="text-[12px] leading-relaxed">
+          <span className="font-extrabold text-slate-800 dark:text-slate-200">Ingredients: </span>
+          <span className="text-slate-655 dark:text-slate-350 font-normal">
+            {ingredientsList}
+          </span>
+        </div>
+
+        {/* Nutrition Row */}
+        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 pt-0.5">
+          <span className="flex items-center gap-1 font-bold text-slate-700 dark:text-slate-200">
+            🔥 {food.calories || 0} kcal
+          </span>
+          <span>
+            Protein: <strong className="text-slate-750 dark:text-slate-200 font-bold">{food.protein_grams || 0}g</strong>
+          </span>
+          <span>
+            Fat: <strong className="text-slate-750 dark:text-slate-200 font-bold">{food.fats_grams || 0}g</strong>
+          </span>
+        </div>
+
+        {/* Action / Meta Row */}
+        {!isSafe && (
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
+            {food.triggered_allergens && food.triggered_allergens.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                <span className="text-[9px] text-slate-400 dark:text-slate-550 font-bold uppercase tracking-wider self-center mr-1">Triggers:</span>
+                {food.triggered_allergens.map(a => (
+                  <span key={a} className="text-[8px] font-bold bg-rose-50 dark:bg-rose-955/20 text-rose-700 dark:text-rose-350 px-2 py-0.5 rounded border border-rose-100/50 dark:border-rose-900/20 uppercase">
+                    {a.replace("_", " ")}
+                  </span>
+                ))}
+              </div>
+            )}
+            {food.alternatives && food.alternatives.length > 0 && (
+              <div className="bg-rose-50/30 dark:bg-rose-955/10 border border-rose-100/30 dark:border-rose-900/10 rounded-xl p-2 text-xs text-left">
+                <span className="text-[10px] text-rose-800 dark:text-rose-350 font-extrabold block mb-0.5">Safe Alternatives:</span>
+                <span className="text-rose-700 dark:text-rose-405 font-bold leading-normal">
+                  {Array.isArray(food.alternatives) ? food.alternatives.join(", ") : food.alternatives}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // 3D Parallax Tilt Card Component using Framer Motion
 function TiltCard({ children, className = "", style = {}, ...props }) {
@@ -811,14 +1061,14 @@ export default function App() {
                             Modify Selected Allergens
                           </button>
                         </div>
-
-                        {/* Vertical Stepper Timeline (Screen Only) */}
+                                         {/* Vertical Stepper Timeline (Screen Only) */}
                         <div className="space-y-4 print:hidden">
                           {[
                             { name: "Overview", icon: Info, summary: `${knownAssessment.selected_allergens_details?.length || 0} allergens selected` },
                             { name: "Mechanism", icon: Activity, summary: "Biological response & warning guidelines" },
                             { name: "Avoidance", icon: XCircle, summary: `${knownAssessment.unsafe_foods?.length || 0} unsafe dishes to avoid` },
                             { name: "Safe Dishes", icon: CheckCircle, summary: `${knownAssessment.safe_foods?.length || 0} regional dishes recommended` },
+                            { name: "Protein Profile", icon: Activity, summary: "Protein content & Daily Value percentages" },
                             { name: "Medicines", icon: ShieldAlert, summary: "Stage A & B clinical guidance pathways" },
                             { name: "Report Card", icon: Printer, summary: "Official EHR Clinical Report Card PDF" }
                           ].map((step, idx) => {
@@ -847,7 +1097,7 @@ export default function App() {
                                         ? "bg-gradient-to-br from-clinical-teal-600 to-clinical-blue-600 border-clinical-teal-500 text-white shadow-sm font-bold" 
                                         : isCompleted 
                                           ? "bg-clinical-teal-50 dark:bg-clinical-teal-950/30 text-clinical-teal-600 dark:text-clinical-teal-400 border-clinical-teal-200 dark:border-clinical-teal-900/60" 
-                                          : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+                                          : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-505 border-slate-200 dark:border-slate-700"
                                     }`}>
                                       {isCompleted ? (
                                         <Check className="w-4 h-4 stroke-[3]" />
@@ -856,7 +1106,7 @@ export default function App() {
                                       )}
                                     </div>
                                     <div>
-                                      <h4 className={`text-xs font-black uppercase tracking-wider ${isActive ? "text-slate-800 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
+                                      <h4 className={`text-xs font-black uppercase tracking-wider ${isActive ? "text-slate-800 dark:text-white" : "text-slate-555 dark:text-slate-400"}`}>
                                         {step.name}
                                       </h4>
                                       <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
@@ -892,13 +1142,59 @@ export default function App() {
                                             <div className="grid md:grid-cols-2 gap-5">
                                               <div className="space-y-3">
                                                 <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Selected Allergen Profiles:</span>
-                                                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                                                <div className="space-y-2 max-h-[550px] overflow-y-auto pr-1">
                                                   {knownAssessment.selected_allergens_details && knownAssessment.selected_allergens_details.map(a => (
-                                                    <div key={a.id} className="flex items-start gap-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs transition-colors duration-500">
-                                                      <img src={getImageUrl(a.thumbnail_path)} alt={a.name} className="w-9 h-9 rounded-md object-cover flex-shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
-                                                      <div>
-                                                        <h4 className="text-xs font-bold text-slate-800 dark:text-white">{a.name}</h4>
-                                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-medium mt-0.5">{a.description}</p>
+                                                    <div key={a.id} className="flex flex-col gap-2.5 p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs transition-colors duration-500">
+                                                      <div className="flex items-start gap-3">
+                                                        <img src={getImageUrl(a.thumbnail_path)} alt={a.name} className="w-9 h-9 rounded-md object-cover flex-shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+                                                        <div className="flex-grow text-left">
+                                                          <h4 className="text-xs font-bold text-slate-800 dark:text-white">{a.name}</h4>
+                                                          <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-medium mt-0.5">{a.description}</p>
+                                                        </div>
+                                                      </div>
+                                                      
+                                                      <div className="mt-1 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-left">
+                                                        <span className="text-[9px] font-black text-clinical-teal-600 dark:text-clinical-teal-400 uppercase tracking-wider block">Safe Alternatives:</span>
+                                                        <span className="text-[10px] text-slate-650 dark:text-slate-300 font-semibold block mt-0.5">{ALLERGEN_ALTERNATIVES[a.id] || "No specific substitutes listed"}</span>
+                                                      </div>
+
+                                                      {/* Recharts Nutrition Comparison Diagram */}
+                                                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-left">
+                                                        <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block mb-1.5">Protein Density Comparison (g/100g):</span>
+                                                        <div className="h-28 w-full relative">
+                                                          <ResponsiveContainer width="100%" height="100%">
+                                                            <BarChart
+                                                              data={getNutritionComparison(a.id, a.name)}
+                                                              layout="vertical"
+                                                              margin={{ top: 0, right: 10, left: -25, bottom: 0 }}
+                                                            >
+                                                              <XAxis type="number" hide />
+                                                              <YAxis 
+                                                                dataKey="name" 
+                                                                type="category" 
+                                                                axisLine={false}
+                                                                tickLine={false}
+                                                                tick={{ fill: theme === 'dark' ? '#94a3b8' : '#475569', fontSize: 7.5, fontWeight: 'bold' }}
+                                                                width={120}
+                                                              />
+                                                              <Tooltip 
+                                                                formatter={(value) => [`${value}g`, 'Protein']}
+                                                                contentStyle={{
+                                                                  backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+                                                                  borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
+                                                                  fontSize: 9,
+                                                                  padding: '3px 6px',
+                                                                  borderRadius: 6
+                                                                }}
+                                                              />
+                                                                <Bar dataKey="protein" radius={[0, 4, 4, 0]} barSize={8}>
+                                                                  {getNutritionComparison(a.id, a.name).map((entry, idx2) => {
+                                                                    return <Cell key={`cell-${idx2}`} fill={entry.color} />;
+                                                                  })}
+                                                                </Bar>
+                                                            </BarChart>
+                                                          </ResponsiveContainer>
+                                                        </div>
                                                       </div>
                                                     </div>
                                                   ))}
@@ -913,11 +1209,11 @@ export default function App() {
                                                   </p>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-3">
-                                                  <div className="bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-950/50 rounded-xl p-3 text-center shadow-xs transition-colors duration-500">
+                                                  <div className="bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-955/50 rounded-xl p-3 text-center shadow-xs transition-colors duration-500">
                                                     <span className="text-lg font-black text-rose-600 block">{knownAssessment.unsafe_foods.length}</span>
                                                     <span className="text-[9px] text-rose-500 dark:text-rose-455 font-bold uppercase tracking-wider block">Avoid (Unsafe)</span>
                                                   </div>
-                                                  <div className="bg-white dark:bg-slate-900 border border-clinical-teal-100 dark:border-clinical-teal-950/50 rounded-xl p-3 text-center shadow-xs transition-colors duration-500">
+                                                  <div className="bg-white dark:bg-slate-900 border border-clinical-teal-100 dark:border-clinical-teal-955/50 rounded-xl p-3 text-center shadow-xs transition-colors duration-500">
                                                     <span className="text-lg font-black text-clinical-teal-600 block">{knownAssessment.safe_foods.length}</span>
                                                     <span className="text-[9px] text-clinical-teal-500 dark:text-clinical-teal-455 font-bold uppercase tracking-wider block">Safe Dishes</span>
                                                   </div>
@@ -952,7 +1248,7 @@ export default function App() {
                                               <span className="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 tracking-wider">Expected Clinical Evaluation</span>
                                               <p className="mt-1 font-semibold text-slate-700 dark:text-slate-300">{knownAssessment.doctor_note.allergist_evaluation}</p>
                                             </div>
-                                            <div className="p-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-[10px] rounded-lg font-bold">
+                                            <div className="p-3 bg-rose-50 dark:bg-rose-955/20 border border-rose-100 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-[10px] rounded-lg font-bold">
                                               ⚠️ {knownAssessment.doctor_note.disclaimer}
                                             </div>
                                           </div>
@@ -964,33 +1260,7 @@ export default function App() {
                                             {knownAssessment.unsafe_foods.length > 0 ? (
                                               <div className="grid sm:grid-cols-2 gap-4">
                                                 {knownAssessment.unsafe_foods.map(food => (
-                                                  <div key={food.id} className="bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-950/40 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between transition-colors duration-500">
-                                                    <div className="h-24 bg-slate-50 dark:bg-slate-950 relative">
-                                                      <img 
-                                                        src={getImageUrl(food.image_path)} 
-                                                        alt={food.name}
-                                                        className="w-full h-full object-cover"
-                                                      />
-                                                      <div className="absolute top-2 right-2 bg-rose-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                                        Unsafe
-                                                      </div>
-                                                    </div>
-                                                    <div className="p-3 space-y-1">
-                                                      <span className="text-xs font-bold text-slate-800 dark:text-white block">{food.name}</span>
-                                                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">{food.description}</p>
-                                                      <div className="flex flex-wrap gap-1 pt-1">
-                                                        {food.triggered_allergens.map(a => (
-                                                          <span key={a} className="text-[8px] font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-350 px-1.5 py-0.5 rounded border border-rose-100 dark:border-rose-900/40 uppercase">
-                                                            {a.replace("_", " ")}
-                                                          </span>
-                                                        ))}
-                                                      </div>
-                                                    </div>
-                                                    <div className="bg-rose-50/50 dark:bg-rose-950/20 border-t border-rose-50 dark:border-rose-900/20 p-2 text-center">
-                                                      <span className="text-[9px] text-rose-800 dark:text-rose-300 font-bold block">Safe Alternatives:</span>
-                                                      <span className="text-xs text-rose-700 dark:text-rose-400 font-bold">{food.alternatives.join(", ")}</span>
-                                                    </div>
-                                                  </div>
+                                                  <FoodItemCard key={food.id} food={food} isSafe={false} />
                                                 ))}
                                               </div>
                                             ) : (
@@ -1007,26 +1277,7 @@ export default function App() {
                                             {knownAssessment.safe_foods.length > 0 ? (
                                               <div className="grid sm:grid-cols-2 gap-4">
                                                 {knownAssessment.safe_foods.map(food => (
-                                                  <div key={food.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between transition-colors duration-500">
-                                                    <div className="h-24 bg-slate-50 dark:bg-slate-950 relative">
-                                                      <img 
-                                                        src={getImageUrl(food.image_path)} 
-                                                        alt={food.name}
-                                                        className="w-full h-full object-cover"
-                                                      />
-                                                      <div className="absolute top-2 right-2 bg-clinical-teal-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                                        Safe
-                                                      </div>
-                                                    </div>
-                                                    <div className="p-3 space-y-1">
-                                                      <span className="text-xs font-bold text-slate-800 dark:text-white block">{food.name}</span>
-                                                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">{food.description}</p>
-                                                    </div>
-                                                    <div className="bg-slate-50 dark:bg-slate-950 p-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1">
-                                                      <span className="text-[8px] text-slate-400 dark:text-slate-500 font-bold block w-full">Ingredients:</span>
-                                                      <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold line-clamp-1">{food.ingredients.join(", ")}</span>
-                                                    </div>
-                                                  </div>
+                                                  <FoodItemCard key={food.id} food={food} isSafe={true} />
                                                 ))}
                                               </div>
                                             ) : (
@@ -1038,17 +1289,81 @@ export default function App() {
                                         )}
 
                                         {idx === 4 && (
+                                          <div className="space-y-6">
+                                            <h3 className="text-sm font-black text-slate-800 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">Protein Profile & Nutrient Analysis</h3>
+                                            
+                                            {/* Informational Panel */}
+                                            <div className="p-4 bg-gradient-to-br from-indigo-50/50 to-clinical-blue-50/50 dark:from-indigo-955/10 dark:to-clinical-blue-955/10 border border-indigo-100/50 dark:border-indigo-900/30 rounded-2xl space-y-2 text-left">
+                                              <span className="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 tracking-wider">Nutritional Focus: Hypoallergenic Proteins</span>
+                                              <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed font-semibold">
+                                                When managing food allergies, it is vital to source high-quality protein from safe, non-reactive foods. Below is the protein composition and percentage of Recommended Daily Value (% DV, based on a 50g reference value) for your safe and unsafe food selections.
+                                              </p>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                              {/* Safe Foods Protein */}
+                                              <div className="space-y-3">
+                                                <h4 className="text-xs font-black uppercase text-clinical-teal-700 dark:text-clinical-teal-400 tracking-wider text-left">Protein in Safe Recommended Dishes</h4>
+                                                {knownAssessment.safe_foods.length > 0 ? (
+                                                  <div className="space-y-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 shadow-2xs">
+                                                    {knownAssessment.safe_foods.map(food => (
+                                                      <div key={food.id} className="space-y-1.5">
+                                                        <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200">
+                                                          <span>{food.name}</span>
+                                                          <span className="text-clinical-teal-600">{food.protein_grams || 0}g ({food.protein_pct || 0}% DV)</span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                                          <div 
+                                                            className="bg-gradient-to-r from-clinical-teal-500 to-clinical-blue-600 h-full rounded-full" 
+                                                            style={{ width: `${Math.min(food.protein_pct || 0, 100)}%` }}
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                ) : (
+                                                  <p className="text-xs italic text-slate-400 font-semibold text-left">No safe dishes available.</p>
+                                                )}
+                                              </div>
+
+                                              {/* Unsafe Foods Protein */}
+                                              {knownAssessment.unsafe_foods.length > 0 && (
+                                                <div className="space-y-3">
+                                                  <h4 className="text-xs font-black uppercase text-rose-700 dark:text-rose-455 tracking-wider text-left">Protein in Unsafe Dishes (To Avoid)</h4>
+                                                  <div className="space-y-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 shadow-2xs">
+                                                    {knownAssessment.unsafe_foods.map(food => (
+                                                      <div key={food.id} className="space-y-1.5 opacity-70">
+                                                        <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+                                                          <span className="line-through">{food.name}</span>
+                                                          <span className="text-rose-600">{food.protein_grams || 0}g ({food.protein_pct || 0}% DV)</span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                                          <div 
+                                                            className="bg-rose-500 h-full rounded-full" 
+                                                            style={{ width: `${Math.min(food.protein_pct || 0, 100)}%` }}
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {idx === 5 && (
                                           <div className="space-y-4 text-xs font-semibold">
                                             <h3 className="text-sm font-black text-slate-800 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                                               <span>Medicine Safety Education</span>
                                               <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-0.5 px-2 rounded uppercase">No Brand names</span>
                                             </h3>
-                                            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 font-bold leading-normal">
+                                            <div className="p-3 bg-amber-50 dark:bg-amber-955/20 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 font-bold leading-normal">
                                               ⚠️ {knownAssessment.medicine_guidance.disclaimer}
                                             </div>
                                             <div className="grid md:grid-cols-2 gap-5">
                                               <div className="space-y-3">
-                                                <span className="text-[10px] font-black uppercase text-clinical-teal-700 dark:text-clinical-teal-400 tracking-wider block">Stage A: Over-the-Counter Relief (Mild Reactions)</span>
+                                                <span className="text-[10px] font-black uppercase text-clinical-teal-700 dark:text-clinical-teal-400 tracking-wider block text-left">Stage A: Over-the-Counter Relief (Mild Reactions)</span>
                                                 {knownAssessment.medicine_guidance.stage_a && knownAssessment.medicine_guidance.stage_a.length > 0 ? (
                                                   <div className="space-y-2">
                                                     {knownAssessment.medicine_guidance.stage_a.map((med, i) => (
@@ -1060,7 +1375,7 @@ export default function App() {
                                                             className="w-11 h-11 rounded-lg object-cover bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0"
                                                           />
                                                         )}
-                                                        <div className="space-y-0.5 flex-grow">
+                                                        <div className="space-y-0.5 flex-grow text-left">
                                                           <span className="text-xs font-bold text-slate-700 dark:text-white block">{med.category}</span>
                                                           <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-medium">{med.description}</p>
                                                           <span className="text-[8px] text-amber-700 dark:text-amber-400 font-bold block mt-0.5">Warning: {med.warning}</span>
@@ -1069,12 +1384,12 @@ export default function App() {
                                                     ))}
                                                   </div>
                                                 ) : (
-                                                  <p className="text-xs text-slate-400 dark:text-slate-500 italic font-semibold">No specific Stage A medicines mapped.</p>
+                                                  <p className="text-xs text-slate-400 dark:text-slate-500 italic font-semibold text-left">No specific Stage A medicines mapped.</p>
                                                 )}
                                               </div>
                                               
                                               <div className="space-y-3">
-                                                <span className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-400 tracking-wider block">Stage B: Prescription Rescue (Severe Reactions)</span>
+                                                <span className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-400 tracking-wider block text-left">Stage B: Prescription Rescue (Severe Reactions)</span>
                                                 {knownAssessment.medicine_guidance.stage_b && knownAssessment.medicine_guidance.stage_b.length > 0 ? (
                                                   <div className="space-y-2">
                                                     {knownAssessment.medicine_guidance.stage_b.map((med, i) => (
@@ -1086,7 +1401,7 @@ export default function App() {
                                                             className="w-11 h-11 rounded-lg object-cover bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0"
                                                           />
                                                         )}
-                                                        <div className="space-y-0.5 flex-grow">
+                                                        <div className="space-y-0.5 flex-grow text-left">
                                                           <span className="text-xs font-bold text-slate-700 dark:text-white block">{med.category}</span>
                                                           <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-medium">{med.description}</p>
                                                           <span className="text-[8px] text-rose-700 dark:text-rose-450 font-bold block mt-0.5">Emergency Warning: {med.warning}</span>
@@ -1095,19 +1410,19 @@ export default function App() {
                                                     ))}
                                                   </div>
                                                 ) : (
-                                                  <p className="text-xs text-slate-400 dark:text-slate-500 italic font-semibold">No specific Stage B medicines mapped.</p>
+                                                  <p className="text-xs text-slate-400 dark:text-slate-500 italic font-semibold text-left">No specific Stage B medicines mapped.</p>
                                                 )}
                                               </div>
                                             </div>
                                           </div>
                                         )}
 
-                                        {idx === 5 && (
+                                        {idx === 6 && (
                                           <div className="space-y-4">
                                             <h3 className="text-sm font-black text-slate-800 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">Electronic Health Record</h3>
                                             
                                             {/* EHR Mini Block */}
-                                            <div className="border border-slate-300 dark:border-slate-700 p-4 rounded-xl bg-white dark:bg-slate-900 space-y-3 shadow-xs text-xs transition-colors duration-500">
+                                            <div className="border border-slate-300 dark:border-slate-700 p-4 rounded-xl bg-white dark:bg-slate-900 space-y-3 shadow-xs text-xs transition-colors duration-500 text-left">
                                               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                                                 <div className="flex items-center gap-2">
                                                   <Activity className="w-4 h-4 text-slate-900 dark:text-white" />
@@ -1166,7 +1481,7 @@ export default function App() {
                                             Back
                                           </button>
                                           
-                                          {idx < 5 ? (
+                                          {idx < 6 ? (
                                             <button
                                               type="button"
                                               onClick={(e) => { e.stopPropagation(); setActiveKnownStep(idx + 1); }}
@@ -1946,23 +2261,7 @@ export default function App() {
                                         {unknownAssessment.food_guidance.avoid && unknownAssessment.food_guidance.avoid.length > 0 ? (
                                           <div className="grid sm:grid-cols-2 gap-4">
                                             {unknownAssessment.food_guidance.avoid.map(food => (
-                                              <div key={food.id} className="bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-955 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between transition-colors duration-500">
-                                                <div className="h-24 bg-slate-50 dark:bg-slate-950 relative">
-                                                  <img 
-                                                    src={getImageUrl(food.image_path)} 
-                                                    alt={food.name}
-                                                    className="w-full h-full object-cover"
-                                                  />
-                                                </div>
-                                                <div className="p-3 space-y-1">
-                                                  <span className="text-xs font-bold text-slate-800 dark:text-white block">{food.name}</span>
-                                                  <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">Triggers: {food.triggered_allergens.join(", ")}</span>
-                                                </div>
-                                                <div className="bg-rose-50/50 dark:bg-rose-950/20 border-t border-rose-50 dark:border-rose-900/20 p-2 text-center">
-                                                  <span className="text-[9px] text-rose-800 dark:text-rose-300 font-bold block">Safe Alternative:</span>
-                                                  <span className="text-xs text-rose-700 dark:text-rose-405 font-bold">{food.alternatives[0]}</span>
-                                                </div>
-                                              </div>
+                                              <FoodItemCard key={food.id} food={food} isSafe={false} />
                                             ))}
                                           </div>
                                         ) : (

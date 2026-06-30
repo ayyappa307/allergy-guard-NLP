@@ -180,7 +180,12 @@ def init_db():
                 description TEXT,
                 ingredients JSONB,
                 allergens JSONB,
-                alternatives JSONB
+                alternatives JSONB,
+                protein_grams INTEGER,
+                protein_pct INTEGER,
+                calories INTEGER,
+                carbs_grams INTEGER,
+                fats_grams INTEGER
             );
         """)
         cur.execute("""
@@ -233,8 +238,8 @@ def init_db():
             # Seed foods
             for f in local_data.get("foods", []):
                 cur.execute(
-                    "INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
-                    (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]))
+                    "INSERT INTO foods (id, name, image_path, description, ingredients, allergens, alternatives, protein_grams, protein_pct, calories, carbs_grams, fats_grams) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (f["id"], f["name"], f["image_path"], f["description"], json.dumps(f["ingredients"]), json.dumps(f["allergens"]), json.dumps(f["alternatives"]), f.get("protein_grams", 0), f.get("protein_pct", 0), f.get("calories", 0), f.get("carbs_grams", 0), f.get("fats_grams", 0))
                 )
 
             # Seed medicines (using correct keys matching local_db.json)
