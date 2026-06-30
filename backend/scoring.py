@@ -146,7 +146,8 @@ def calculate_allergy_assessment(food_ids, symptom_ids, photo_analysis=None):
                 "id": a_id,
                 "name": allergen["name"],
                 "score": percentage,
-                "description": allergen["description"]
+                "description": allergen["description"],
+                "thumbnail_path": allergen.get("thumbnail_path")
             })
             
     # Sort by score descending

@@ -43,6 +43,103 @@ const ALLERGEN_ALTERNATIVES = {
   celery: "Fennel bulbs, Carrots, Parsnip, Parsley"
 };
 
+const ALTERNATIVE_IMAGES = {
+  "sunflower seeds": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "pumpkin seeds": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "soy nuts": "/static/images/allergens/soy.jpg",
+  "melon seeds": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "sesame seeds": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "coconut milk": "/static/images/allergens/coconut.jpg",
+  "almond milk": "/static/images/allergens/tree_nuts.jpg",
+  "soy milk": "/static/images/allergens/soy.jpg",
+  "oat milk": "/static/images/allergens/gluten.jpg",
+  "rice flour": "/static/images/allergens/wheat.jpg",
+  "finger millet": "/static/images/foods/ragi_sangati.jpg",
+  "ragi": "/static/images/foods/ragi_sangati.jpg",
+  "sorghum": "/static/images/allergens/gluten.jpg",
+  "jowar": "/static/images/allergens/gluten.jpg",
+  "pearl millet": "/static/images/allergens/gluten.jpg",
+  "bajra": "/static/images/allergens/gluten.jpg",
+  "fish": "/static/images/allergens/fish.jpg",
+  "tofu": "/static/images/allergens/soy.jpg",
+  "lentils": "/static/images/allergens/green_gram.jpg",
+  "paneer": "/static/images/allergens/dairy.jpg",
+  "applesauce": "/static/images/allergens/latex_fruit.jpg",
+  "mashed banana": "/static/images/allergens/latex_fruit.jpg",
+  "flaxseed paste": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "chia seed paste": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "yogurt": "/static/images/allergens/curd_yogurt.jpg",
+  "chickpeas": "/static/images/allergens/green_gram.jpg",
+  "peas": "/static/images/allergens/green_gram.jpg",
+  "coconut aminos": "/static/images/allergens/coconut.jpg",
+  "chicken": "/static/images/foods/ragi_sangati.jpg",
+  "mutton": "/static/images/foods/ragi_sangati.jpg",
+  "shellfish": "/static/images/allergens/shellfish.jpg",
+  "rice": "/static/images/allergens/wheat.jpg",
+  "corn flour": "/static/images/allergens/corn.jpg",
+  "quinoa": "/static/images/allergens/wheat.jpg",
+  "tapioca": "/static/images/allergens/wheat.jpg",
+  "oats": "/static/images/allergens/gluten.jpg",
+  "tapioca starch": "/static/images/allergens/wheat.jpg",
+  "potato starch": "/static/images/allergens/wheat.jpg",
+  "arrowroot powder": "/static/images/allergens/wheat.jpg",
+  "organic fresh fruits": "/static/images/allergens/latex_fruit.jpg",
+  "preservative-free foods": "/static/images/patterns/inconclusive.jpg",
+  "natural color extracts": "/static/images/allergens/food_dyes.jpg",
+  "sea salt": "/static/images/allergens/msg_sensitivity.jpg",
+  "yeast extract": "/static/images/allergens/msg_sensitivity.jpg",
+  "mushroom powder": "/static/images/allergens/msg_sensitivity.jpg",
+  "tomatoes": "/static/images/allergens/msg_sensitivity.jpg",
+  "celery salt": "/static/images/allergens/celery.jpg",
+  "berries": "/static/images/allergens/latex_fruit.jpg",
+  "apples": "/static/images/allergens/latex_fruit.jpg",
+  "citrus fruits": "/static/images/allergens/latex_fruit.jpg",
+  "grapes": "/static/images/allergens/latex_fruit.jpg",
+  "sunflower oil": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "olive oil": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "groundnut oil": "/static/images/allergens/peanuts.jpg",
+  "sesame oil": "/static/images/allergens/sesame_seeds_oil.jpg",
+  "ground horseradish": "/static/images/allergens/mustard_seeds_oil.jpg",
+  "wasabi": "/static/images/allergens/mustard_seeds_oil.jpg",
+  "dairy milk": "/static/images/allergens/dairy.jpg",
+  "butter": "/static/images/allergens/dairy.jpg",
+  "dairy-free yogurt": "/static/images/allergens/curd_yogurt.jpg",
+  "coconut yogurt": "/static/images/allergens/curd_yogurt.jpg",
+  "soy yogurt": "/static/images/allergens/curd_yogurt.jpg",
+  "oat yogurt": "/static/images/allergens/curd_yogurt.jpg",
+  "lemon juice": "/static/images/allergens/tamarind.jpg",
+  "lime juice": "/static/images/allergens/tamarind.jpg",
+  "dry mango powder": "/static/images/allergens/tamarind.jpg",
+  "kokum": "/static/images/allergens/tamarind.jpg",
+  "brown sugar": "/static/images/allergens/jaggery.jpg",
+  "white sugar": "/static/images/allergens/jaggery.jpg",
+  "maple syrup": "/static/images/allergens/jaggery.jpg",
+  "raw honey": "/static/images/allergens/jaggery.jpg",
+  "salmon": "/static/images/allergens/fish.jpg",
+  "cod": "/static/images/allergens/fish.jpg",
+  "mushrooms": "/static/images/allergens/celery.jpg",
+  "yellow moong dal": "/static/images/allergens/green_gram.jpg",
+  "green gram": "/static/images/allergens/green_gram.jpg",
+  "bengal gram": "/static/images/allergens/green_gram.jpg",
+  "urad dal": "/static/images/allergens/black_gram.jpg",
+  "chana dal": "/static/images/allergens/green_gram.jpg",
+  "toor dal": "/static/images/allergens/green_gram.jpg",
+  "black pepper": "/static/images/allergens/chili_capsaicin.jpg",
+  "white pepper": "/static/images/allergens/chili_capsaicin.jpg",
+  "ginger": "/static/images/allergens/chili_capsaicin.jpg",
+  "garlic": "/static/images/allergens/chili_capsaicin.jpg",
+  "hing": "/static/images/allergens/chili_capsaicin.jpg",
+  "fennel bulbs": "/static/images/allergens/celery.jpg",
+  "carrots": "/static/images/allergens/celery.jpg",
+  "parsnip": "/static/images/allergens/celery.jpg",
+  "parsley": "/static/images/allergens/celery.jpg"
+};
+
+const getAltImage = (alt) => {
+  const cleanAlt = alt.replace(/\s*\(.*\)\s*/g, "").toLowerCase().trim();
+  return ALTERNATIVE_IMAGES[cleanAlt] || "/static/images/patterns/inconclusive.jpg";
+};
+
 const ALLERGEN_NUTRITION_COMPARISON = {
   peanuts: [
     { name: "Peanuts (Allergen)", protein: 26, color: "#ef4444" },
@@ -1142,8 +1239,29 @@ export default function App() {
                                                       </div>
                                                       
                                                       <div className="mt-1 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-left">
-                                                        <span className="text-[9px] font-black text-clinical-teal-600 dark:text-clinical-teal-400 uppercase tracking-wider block">Safe Alternatives:</span>
-                                                        <span className="text-[10px] text-slate-650 dark:text-slate-300 font-semibold block mt-0.5">{ALLERGEN_ALTERNATIVES[a.id] || "No specific substitutes listed"}</span>
+                                                        <span className="text-[9px] font-black text-clinical-teal-600 dark:text-clinical-teal-400 uppercase tracking-wider block mb-1">Safe Alternatives:</span>
+                                                        {ALLERGEN_ALTERNATIVES[a.id] ? (
+                                                          <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            {ALLERGEN_ALTERNATIVES[a.id].split(",").map(altRaw => {
+                                                              const alt = altRaw.trim();
+                                                              const imgPath = getAltImage(alt);
+                                                              return (
+                                                                <div key={alt} className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-lg">
+                                                                  <img 
+                                                                    src={getImageUrl(imgPath)} 
+                                                                    alt={alt}
+                                                                    className="w-7 h-7 rounded object-cover flex-shrink-0 bg-white"
+                                                                  />
+                                                                  <span className="text-[9px] font-extrabold text-slate-700 dark:text-slate-350 line-clamp-2 leading-tight">
+                                                                    {alt}
+                                                                  </span>
+                                                                </div>
+                                                              );
+                                                            })}
+                                                          </div>
+                                                        ) : (
+                                                          <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">No specific substitutes listed</span>
+                                                        )}
                                                       </div>
 
                                                       {/* Recharts Nutrition Comparison Diagram */}
@@ -2153,16 +2271,25 @@ export default function App() {
                                               const isAlreadyKnown = selectedKnownAllergens.includes(allergen.id);
                                               return (
                                                 <div key={allergen.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-500">
-                                                  <div className="space-y-1 flex-grow">
-                                                    <div className="flex items-center gap-2">
-                                                      <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-600 dark:text-slate-300 flex items-center justify-center flex-shrink-0">
-                                                        {index + 1}
-                                                      </span>
-                                                      <span className="text-xs font-bold text-slate-800 dark:text-white">{allergen.name}</span>
+                                                  <div className="flex items-start gap-3.5 flex-grow">
+                                                    {allergen.thumbnail_path && (
+                                                      <img 
+                                                        src={getImageUrl(allergen.thumbnail_path)} 
+                                                        alt={allergen.name}
+                                                        className="w-12 h-12 rounded-lg object-cover bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                                                      />
+                                                    )}
+                                                    <div className="space-y-1 text-left flex-grow">
+                                                      <div className="flex items-center gap-2">
+                                                        <span className="w-4 h-4 rounded-full bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-600 dark:text-slate-300 flex items-center justify-center flex-shrink-0">
+                                                          {index + 1}
+                                                        </span>
+                                                        <span className="text-xs font-bold text-slate-800 dark:text-white">{allergen.name}</span>
+                                                      </div>
+                                                      <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal font-medium">
+                                                        {allergen.description}
+                                                      </p>
                                                     </div>
-                                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal pl-7 font-medium">
-                                                      {allergen.description}
-                                                    </p>
                                                   </div>
                                                   
                                                   <div className="flex items-center gap-3.5 justify-between pl-7 sm:pl-0">

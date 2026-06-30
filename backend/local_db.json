@@ -20192,6 +20192,1622 @@
         }
       },
       "created_at": "2026-06-30T16:17:31.418948"
+    },
+    {
+      "id": "f2f8c93e-0daa-4473-9de6-449b768bfb63",
+      "user_id": "mock-user-123",
+      "query_text": "Food: I ate moong dal dosa Pesarattu | Symptoms: I had a metallic taste and hives",
+      "selected_symptoms": [
+        "metallic_taste",
+        "tongue_swelling",
+        "hives_urticaria"
+      ],
+      "photo_url": null,
+      "photo_analysis": null,
+      "results": {
+        "top_allergens": [
+          {
+            "id": "green_gram",
+            "name": "Green Gram (Moong/Pesara)",
+            "score": 85.0,
+            "description": "Legume used to make Pesarattu. Cross-reactive with other legumes like peas and lentils.",
+            "thumbnail_path": "/static/images/allergens/green_gram.jpg"
+          },
+          {
+            "id": "chili_capsaicin",
+            "name": "Chili/Capsaicin (Irritant Flag)",
+            "score": 50.0,
+            "description": "Capsaicin is a chemical irritant in hot peppers that triggers non-allergic oral burning, flushing, and digestive upset.",
+            "thumbnail_path": "/static/images/allergens/chili_capsaicin.jpg"
+          }
+        ],
+        "severe_symptom_detected": false,
+        "emergency_alert": false,
+        "extracted_foods": [
+          "pesarattu"
+        ],
+        "extracted_symptoms": [
+          "metallic_taste",
+          "hives_urticaria"
+        ],
+        "photo_analysis": null,
+        "doctor_note": {
+          "disclaimer": "Educational content for this academic project \u2014 not a substitute for an in-person medical evaluation.",
+          "mechanism": "Allergic reactions are hypersensitivity responses triggered when the immune system mistakenly identifies harmless food proteins as threats. Specifically, IgE antibodies bind to the allergen, triggering mast cells to release inflammatory chemicals like histamine. This causes blood vessel dilation (redness, swelling), smooth muscle contraction (difficulty breathing), and skin nerve irritation (itching/hives).",
+          "see_doctor_bullets": [
+            "You experience respiratory distress, throat constriction, or dizziness (anaphylaxis indicators).",
+            "Symptoms recur consistently after consuming specific foods or food families.",
+            "You require clinical diagnostic testing to confirm exact IgE-mediated triggers."
+          ],
+          "allergist_evaluation": "An allergist visit typically involves: a clinical interview, a Skin Prick Test (SPT) where tiny drops of allergen extracts are introduced to the skin surface, an IgE Blood Test to quantify circulating antibodies, or an Oral Food Challenge (OFC) conducted under strict medical supervision."
+        },
+        "food_guidance": {
+          "avoid": [
+            {
+              "id": "pesarattu",
+              "name": "Green Gram Crepe (Pesarattu)",
+              "image_path": "/static/images/foods/pesarattu.jpg",
+              "description": "Healthy crepe made of green gram (moong dal) batter, ginger, and green chilies.",
+              "triggered_allergens": [
+                "green_gram",
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Rice Crepe (Rava Dosa - wheat-free option)",
+                "Millets Dosa"
+              ],
+              "ingredients": [
+                "green gram",
+                "ginger",
+                "green chili",
+                "cumin",
+                "rice flour",
+                "refined oil"
+              ],
+              "protein_grams": 8,
+              "protein_pct": 16,
+              "calories": 180,
+              "carbs_grams": 24,
+              "fats_grams": 6
+            },
+            {
+              "id": "upma_pesarattu",
+              "name": "Semolina Green Gram Crepe (Upma Pesarattu)",
+              "image_path": "/static/images/foods/upma_pesarattu.jpg",
+              "description": "Green gram crepe stuffed with semolina (upma), roasted cashews, and ghee.",
+              "triggered_allergens": [
+                "chili_capsaicin",
+                "green_gram"
+              ],
+              "alternatives": [
+                "Plain Pesarattu (ghee-free/wheat-free)",
+                "Quinoa Upma Crepe"
+              ],
+              "ingredients": [
+                "green gram",
+                "semolina (wheat)",
+                "cashews",
+                "ghee (milk fat)",
+                "ginger",
+                "green chili",
+                "mustard seeds"
+              ],
+              "protein_grams": 11,
+              "protein_pct": 22,
+              "calories": 320,
+              "carbs_grams": 42,
+              "fats_grams": 12
+            },
+            {
+              "id": "punugulu",
+              "name": "Fried Rice-Lentil Dumplings (Punugulu)",
+              "image_path": "/static/images/foods/punugulu.jpg",
+              "description": "Deep-fried snack bites made from fermented rice and urad dal batter.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Steamed Idli Bites",
+                "Baked Rice Crackers"
+              ],
+              "ingredients": [
+                "rice",
+                "black gram (urad dal)",
+                "chili",
+                "onion",
+                "wheat flour (for binding)",
+                "peanut oil for frying"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 250,
+              "carbs_grams": 32,
+              "fats_grams": 11
+            },
+            {
+              "id": "garelu",
+              "name": "Fried Lentil Donuts (Garelu)",
+              "image_path": "/static/images/foods/garelu.jpg",
+              "description": "Savory fried donuts made from black gram (urad dal) batter, pepper, and ginger.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Baked Lentil Patties",
+                "Steamed Kudumulu"
+              ],
+              "ingredients": [
+                "black gram (urad dal)",
+                "onion",
+                "ginger",
+                "green chili",
+                "black pepper",
+                "peanut oil"
+              ],
+              "protein_grams": 6,
+              "protein_pct": 12,
+              "calories": 240,
+              "carbs_grams": 22,
+              "fats_grams": 14
+            },
+            {
+              "id": "mirapakaya_bajji",
+              "name": "Chili Fritters (Mirapakaya Bajji)",
+              "image_path": "/static/images/foods/mirapakaya_bajji.jpg",
+              "description": "Spicy green chili fritters stuffed with tamarind pulp and carom seeds, fried in chickpea batter.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Aloo Bajji (potato-based, mild chili)",
+                "Stuffed Baked Capsicum"
+              ],
+              "ingredients": [
+                "banana pepper (green chili)",
+                "chickpea flour",
+                "tamarind pulp",
+                "carom seeds",
+                "peanut oil"
+              ],
+              "protein_grams": 3,
+              "protein_pct": 6,
+              "calories": 180,
+              "carbs_grams": 18,
+              "fats_grams": 10
+            },
+            {
+              "id": "thapala_chekkalu",
+              "name": "Rice Crackers (Thapala Chekkalu)",
+              "image_path": "/static/images/foods/thapala_chekkalu.jpg",
+              "description": "Crispy flattened rice-flour crackers containing peanuts, chana dal, and spices.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Plain Baked Rice Crackers",
+                "Roasted Chana Patties"
+              ],
+              "ingredients": [
+                "rice flour",
+                "peanuts",
+                "chana dal",
+                "onion",
+                "green chilies",
+                "sesame seeds",
+                "ghee"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 220,
+              "carbs_grams": 26,
+              "fats_grams": 11
+            },
+            {
+              "id": "gunta_ponganalu",
+              "name": "Pan-fried Rice-Lentil Dumplings (Gunta Ponganalu)",
+              "image_path": "/static/images/foods/gunta_ponganalu.jpg",
+              "description": "Dumplings cooked in a special pan with holes, made of fermented rice-urad batter.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Steamed Idli",
+                "Vegetable Oats Ponganalu"
+              ],
+              "ingredients": [
+                "rice",
+                "black gram (urad dal)",
+                "onion",
+                "mustard seeds",
+                "green chili",
+                "curry leaves"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 160,
+              "carbs_grams": 24,
+              "fats_grams": 5
+            },
+            {
+              "id": "kodi_pulao",
+              "name": "Chicken Pulao (Kodi Pulao)",
+              "image_path": "/static/images/foods/kodi_pulao.jpg",
+              "description": "Spicy chicken and rice dish cooked with coconut milk and rich spices.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Steamed Rice with Mild Chicken Curry",
+                "Vegetable Pulao (coconut-free)"
+              ],
+              "ingredients": [
+                "basmati rice",
+                "chicken",
+                "coconut milk",
+                "ghee",
+                "green chilies",
+                "poppy seeds",
+                "spices"
+              ],
+              "protein_grams": 22,
+              "protein_pct": 44,
+              "calories": 580,
+              "carbs_grams": 68,
+              "fats_grams": 18
+            },
+            {
+              "id": "pulihora",
+              "name": "Tamarind Rice (Pulihora)",
+              "image_path": "/static/images/foods/pulihora.jpg",
+              "description": "Tangy tamarind rice seasoned with mustard seeds, curry leaves, and roasted peanuts.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Lemon Rice (peanut-free)",
+                "Coconut Rice (tamarind/peanut-free)"
+              ],
+              "ingredients": [
+                "rice",
+                "tamarind pulp",
+                "peanuts",
+                "mustard seeds",
+                "turmeric",
+                "sesame oil",
+                "green chilies"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 340,
+              "carbs_grams": 56,
+              "fats_grams": 10
+            },
+            {
+              "id": "ulava_charu",
+              "name": "Horse Gram Soup (Ulava Charu)",
+              "image_path": "/static/images/foods/ulava_charu.jpg",
+              "description": "Traditional thick horse gram soup, highly spiced, served with fresh cream.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Pappu Charu (cream-free)",
+                "Tomato Rasam"
+              ],
+              "ingredients": [
+                "horse gram",
+                "tamarind",
+                "cream (milk product)",
+                "ghee",
+                "mustard seeds",
+                "green chilies"
+              ],
+              "protein_grams": 7,
+              "protein_pct": 14,
+              "calories": 180,
+              "carbs_grams": 24,
+              "fats_grams": 5
+            },
+            {
+              "id": "pappu_charu",
+              "name": "Lentil Vegetable Soup (Pappu Charu)",
+              "image_path": "/static/images/foods/pappu_charu.jpg",
+              "description": "Comforting lentil soup with mixed vegetables, tamarind, and tempering.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Tomato Rasam (tamarind-free)",
+                "Simple Moong Dal soup"
+              ],
+              "ingredients": [
+                "toor dal",
+                "mixed vegetables",
+                "tamarind pulp",
+                "green chilies",
+                "mustard seeds",
+                "turmeric"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 140,
+              "carbs_grams": 20,
+              "fats_grams": 3
+            },
+            {
+              "id": "pulagam",
+              "name": "Rice & Yellow Moong Dal Porridge (Pulagam)",
+              "image_path": "/static/images/foods/pulagam.jpg",
+              "description": "One-pot dish made of rice and split yellow moong dal, offered as a temple prasadam.",
+              "triggered_allergens": [
+                "green_gram"
+              ],
+              "alternatives": [
+                "Simple Boiled Rice",
+                "Peppery Oats Khichdi (lentil-free)"
+              ],
+              "ingredients": [
+                "rice",
+                "split yellow moong dal",
+                "black pepper",
+                "cumin",
+                "ghee"
+              ],
+              "protein_grams": 6,
+              "protein_pct": 12,
+              "calories": 210,
+              "carbs_grams": 38,
+              "fats_grams": 5
+            },
+            {
+              "id": "majjiga_pulusu",
+              "name": "Tempered Buttermilk Stew (Majjiga Pulusu / Charu)",
+              "image_path": "/static/images/foods/majjiga_pulusu.jpg",
+              "description": "Buttermilk-based soup containing vegetables, thickened with chickpea flour and tempered.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Vegetable Clear Soup",
+                "Tomato Rasam"
+              ],
+              "ingredients": [
+                "curd (yogurt)",
+                "chickpea flour",
+                "bottle gourd",
+                "turmeric",
+                "mustard seeds",
+                "fenugreek",
+                "ginger",
+                "chilies"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 120,
+              "carbs_grams": 12,
+              "fats_grams": 6
+            },
+            {
+              "id": "panasa_puttu_koora",
+              "name": "Grated Jackfruit Curry (Panasa Puttu Koora)",
+              "image_path": "/static/images/foods/panasa_puttu_koora.jpg",
+              "description": "Unique grated raw jackfruit curry cooked with a sharp mustard paste.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Stir-fried Raw Banana",
+                "Mushroom Curry"
+              ],
+              "ingredients": [
+                "raw jackfruit",
+                "mustard paste (mustard oil/seeds)",
+                "chana dal",
+                "urad dal",
+                "green chilies",
+                "coconut oil"
+              ],
+              "protein_grams": 3,
+              "protein_pct": 6,
+              "calories": 160,
+              "carbs_grams": 22,
+              "fats_grams": 8
+            },
+            {
+              "id": "pulasa_pulusu",
+              "name": "River Hilsa Fish Curry (Pulasa Pulusu)",
+              "image_path": "/static/images/foods/pulasa_pulusu.jpg",
+              "description": "Highly prized fish curry made with River Godavari Pulasa fish, okra, tamarind, and spicy chilies.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Okra Tamarind Curry (vegan/fish-free)",
+                "Tomato Pepper Soup"
+              ],
+              "ingredients": [
+                "Pulasa fish",
+                "tamarind pulp",
+                "okra (bhendi)",
+                "green chilies",
+                "mustard oil",
+                "turmeric",
+                "chili powder"
+              ],
+              "protein_grams": 22,
+              "protein_pct": 44,
+              "calories": 380,
+              "carbs_grams": 14,
+              "fats_grams": 24
+            },
+            {
+              "id": "natu_kodi_pulusu",
+              "name": "Country Chicken Curry (Natu Kodi Pulusu)",
+              "image_path": "/static/images/foods/natu_kodi_pulusu.jpg",
+              "description": "Spicy, country-style chicken curry loaded with capsaicin and poppy/sesame seeds.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Mild Chicken Stew (broth-based)",
+                "Grilled Chicken breast"
+              ],
+              "ingredients": [
+                "country chicken",
+                "red chili powder",
+                "sesame seeds",
+                "ginger-garlic",
+                "coriander seeds",
+                "mustard oil"
+              ],
+              "protein_grams": 25,
+              "protein_pct": 50,
+              "calories": 420,
+              "carbs_grams": 12,
+              "fats_grams": 28
+            },
+            {
+              "id": "gongura_mutton",
+              "name": "Sorrel Leaves Mutton Curry (Gongura Mutton)",
+              "image_path": "/static/images/foods/gongura_mutton.jpg",
+              "description": "Mutton cooked with sour sorrel leaves (gongura), spices, and peanut oil.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Plain Mutton Curry (non-sour)",
+                "Herb Roasted Lamb"
+              ],
+              "ingredients": [
+                "mutton",
+                "gongura leaves",
+                "onions",
+                "green chilies",
+                "ginger-garlic",
+                "peanut oil",
+                "spices"
+              ],
+              "protein_grams": 23,
+              "protein_pct": 46,
+              "calories": 460,
+              "carbs_grams": 10,
+              "fats_grams": 32
+            },
+            {
+              "id": "avakaya_pachadi",
+              "name": "Spicy Mango Pickle (Avakaya Pachadi)",
+              "image_path": "/static/images/foods/avakaya_pachadi.jpg",
+              "description": "Spicy Andhra mango pickle prepared with mustard powder and sesame oil.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Sweet Mango Chutney (mustard-free)",
+                "Lime Pickle (oil-free)"
+              ],
+              "ingredients": [
+                "raw mango",
+                "mustard powder",
+                "red chili powder",
+                "sesame oil",
+                "salt",
+                "fenugreek seeds"
+              ],
+              "protein_grams": 1,
+              "protein_pct": 2,
+              "calories": 60,
+              "carbs_grams": 6,
+              "fats_grams": 4
+            },
+            {
+              "id": "gongura_pachadi",
+              "name": "Sorrel Leaves Chutney (Gongura Pachadi)",
+              "image_path": "/static/images/foods/gongura_pachadi.jpg",
+              "description": "Tangy pickle made from sorrel leaves, green chilies, and sesame oil.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Mint Coriander Chutney",
+                "Yogurt Raita"
+              ],
+              "ingredients": [
+                "gongura leaves",
+                "green chilies",
+                "sesame oil",
+                "garlic",
+                "cumin",
+                "salt"
+              ],
+              "protein_grams": 2,
+              "protein_pct": 4,
+              "calories": 80,
+              "carbs_grams": 8,
+              "fats_grams": 5
+            },
+            {
+              "id": "allam_pachadi",
+              "name": "Ginger Pickle (Allam Pachadi)",
+              "image_path": "/static/images/foods/allam_pachadi.jpg",
+              "description": "Spicy and sweet ginger pickle prepared with tamarind and jaggery.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Coconut Ginger Chutney (sugar-based)",
+                "Fresh Ginger Garlic relish"
+              ],
+              "ingredients": [
+                "ginger",
+                "tamarind pulp",
+                "jaggery",
+                "red chilies",
+                "sesame oil",
+                "mustard seeds"
+              ],
+              "protein_grams": 1,
+              "protein_pct": 2,
+              "calories": 90,
+              "carbs_grams": 14,
+              "fats_grams": 3
+            },
+            {
+              "id": "kandi_podi",
+              "name": "Roasted Lentil Powder (Kandi Podi)",
+              "image_path": "/static/images/foods/kandi_podi.jpg",
+              "description": "Roasted lentil powder (toor dal, chana dal) mixed with cumin and dry chilies, eaten with ghee.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Sesame Podi (ghee-free)",
+                "Roasted Garlic powder"
+              ],
+              "ingredients": [
+                "toor dal",
+                "chana dal",
+                "dry red chilies",
+                "cumin",
+                "salt",
+                "ghee (for serving)"
+              ],
+              "protein_grams": 9,
+              "protein_pct": 18,
+              "calories": 120,
+              "carbs_grams": 16,
+              "fats_grams": 2
+            },
+            {
+              "id": "spiced_majjiga",
+              "name": "Spiced Buttermilk (Spiced Majjiga)",
+              "image_path": "/static/images/foods/spiced_majjiga.jpg",
+              "description": "Refreshing buttermilk spiced with ginger, curry leaves, green chilies, and coriander.",
+              "triggered_allergens": [
+                "chili_capsaicin"
+              ],
+              "alternatives": [
+                "Coconut Water",
+                "Lemon Water with salt and ginger"
+              ],
+              "ingredients": [
+                "curd (yogurt)",
+                "water",
+                "ginger",
+                "green chili",
+                "coriander leaves",
+                "salt"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 150,
+              "carbs_grams": 20,
+              "fats_grams": 5
+            }
+          ],
+          "alternatives": [
+            {
+              "name": "Rice Crepe (Rava Dosa - wheat-free option)",
+              "for_food": "Green Gram Crepe (Pesarattu)"
+            },
+            {
+              "name": "Millets Dosa",
+              "for_food": "Green Gram Crepe (Pesarattu)"
+            },
+            {
+              "name": "Plain Pesarattu (ghee-free/wheat-free)",
+              "for_food": "Semolina Green Gram Crepe (Upma Pesarattu)"
+            },
+            {
+              "name": "Quinoa Upma Crepe",
+              "for_food": "Semolina Green Gram Crepe (Upma Pesarattu)"
+            },
+            {
+              "name": "Steamed Idli Bites",
+              "for_food": "Fried Rice-Lentil Dumplings (Punugulu)"
+            },
+            {
+              "name": "Baked Rice Crackers",
+              "for_food": "Fried Rice-Lentil Dumplings (Punugulu)"
+            },
+            {
+              "name": "Baked Lentil Patties",
+              "for_food": "Fried Lentil Donuts (Garelu)"
+            },
+            {
+              "name": "Steamed Kudumulu",
+              "for_food": "Fried Lentil Donuts (Garelu)"
+            },
+            {
+              "name": "Aloo Bajji (potato-based, mild chili)",
+              "for_food": "Chili Fritters (Mirapakaya Bajji)"
+            },
+            {
+              "name": "Stuffed Baked Capsicum",
+              "for_food": "Chili Fritters (Mirapakaya Bajji)"
+            },
+            {
+              "name": "Plain Baked Rice Crackers",
+              "for_food": "Rice Crackers (Thapala Chekkalu)"
+            },
+            {
+              "name": "Roasted Chana Patties",
+              "for_food": "Rice Crackers (Thapala Chekkalu)"
+            },
+            {
+              "name": "Steamed Idli",
+              "for_food": "Pan-fried Rice-Lentil Dumplings (Gunta Ponganalu)"
+            },
+            {
+              "name": "Vegetable Oats Ponganalu",
+              "for_food": "Pan-fried Rice-Lentil Dumplings (Gunta Ponganalu)"
+            },
+            {
+              "name": "Steamed Rice with Mild Chicken Curry",
+              "for_food": "Chicken Pulao (Kodi Pulao)"
+            },
+            {
+              "name": "Vegetable Pulao (coconut-free)",
+              "for_food": "Chicken Pulao (Kodi Pulao)"
+            },
+            {
+              "name": "Lemon Rice (peanut-free)",
+              "for_food": "Tamarind Rice (Pulihora)"
+            },
+            {
+              "name": "Coconut Rice (tamarind/peanut-free)",
+              "for_food": "Tamarind Rice (Pulihora)"
+            },
+            {
+              "name": "Pappu Charu (cream-free)",
+              "for_food": "Horse Gram Soup (Ulava Charu)"
+            },
+            {
+              "name": "Tomato Rasam",
+              "for_food": "Horse Gram Soup (Ulava Charu)"
+            },
+            {
+              "name": "Tomato Rasam (tamarind-free)",
+              "for_food": "Lentil Vegetable Soup (Pappu Charu)"
+            },
+            {
+              "name": "Simple Moong Dal soup",
+              "for_food": "Lentil Vegetable Soup (Pappu Charu)"
+            },
+            {
+              "name": "Simple Boiled Rice",
+              "for_food": "Rice & Yellow Moong Dal Porridge (Pulagam)"
+            },
+            {
+              "name": "Peppery Oats Khichdi (lentil-free)",
+              "for_food": "Rice & Yellow Moong Dal Porridge (Pulagam)"
+            },
+            {
+              "name": "Vegetable Clear Soup",
+              "for_food": "Tempered Buttermilk Stew (Majjiga Pulusu / Charu)"
+            },
+            {
+              "name": "Stir-fried Raw Banana",
+              "for_food": "Grated Jackfruit Curry (Panasa Puttu Koora)"
+            },
+            {
+              "name": "Mushroom Curry",
+              "for_food": "Grated Jackfruit Curry (Panasa Puttu Koora)"
+            },
+            {
+              "name": "Okra Tamarind Curry (vegan/fish-free)",
+              "for_food": "River Hilsa Fish Curry (Pulasa Pulusu)"
+            },
+            {
+              "name": "Tomato Pepper Soup",
+              "for_food": "River Hilsa Fish Curry (Pulasa Pulusu)"
+            },
+            {
+              "name": "Mild Chicken Stew (broth-based)",
+              "for_food": "Country Chicken Curry (Natu Kodi Pulusu)"
+            },
+            {
+              "name": "Grilled Chicken breast",
+              "for_food": "Country Chicken Curry (Natu Kodi Pulusu)"
+            },
+            {
+              "name": "Plain Mutton Curry (non-sour)",
+              "for_food": "Sorrel Leaves Mutton Curry (Gongura Mutton)"
+            },
+            {
+              "name": "Herb Roasted Lamb",
+              "for_food": "Sorrel Leaves Mutton Curry (Gongura Mutton)"
+            },
+            {
+              "name": "Sweet Mango Chutney (mustard-free)",
+              "for_food": "Spicy Mango Pickle (Avakaya Pachadi)"
+            },
+            {
+              "name": "Lime Pickle (oil-free)",
+              "for_food": "Spicy Mango Pickle (Avakaya Pachadi)"
+            },
+            {
+              "name": "Mint Coriander Chutney",
+              "for_food": "Sorrel Leaves Chutney (Gongura Pachadi)"
+            },
+            {
+              "name": "Yogurt Raita",
+              "for_food": "Sorrel Leaves Chutney (Gongura Pachadi)"
+            },
+            {
+              "name": "Coconut Ginger Chutney (sugar-based)",
+              "for_food": "Ginger Pickle (Allam Pachadi)"
+            },
+            {
+              "name": "Fresh Ginger Garlic relish",
+              "for_food": "Ginger Pickle (Allam Pachadi)"
+            },
+            {
+              "name": "Sesame Podi (ghee-free)",
+              "for_food": "Roasted Lentil Powder (Kandi Podi)"
+            },
+            {
+              "name": "Roasted Garlic powder",
+              "for_food": "Roasted Lentil Powder (Kandi Podi)"
+            },
+            {
+              "name": "Coconut Water",
+              "for_food": "Spiced Buttermilk (Spiced Majjiga)"
+            },
+            {
+              "name": "Lemon Water with salt and ginger",
+              "for_food": "Spiced Buttermilk (Spiced Majjiga)"
+            }
+          ]
+        },
+        "medicine_guidance": {
+          "disclaimer": "Confirm with a doctor before using any medication. Dosages and brands are omitted for clinical safety.",
+          "stage_a": [
+            {
+              "category": "Oral Antihistamines",
+              "description": "A class of over-the-counter medications that block histamine receptors. Typically used to relieve itching, hives, sneezing, and runny nose.",
+              "warning": "Consult a healthcare provider before use. May cause drowsiness depending on the formulation.",
+              "image_path": "/static/images/medicines/otc_antihistamines.jpg"
+            },
+            {
+              "category": "Topical Hydrocortisone Cream",
+              "description": "A mild over-the-counter corticosteroid ointment applied directly to the skin. Used to reduce swelling, redness, and intense itching of localized contact rashes.",
+              "warning": "For external skin use only. Do not apply to open wounds or near the eyes.",
+              "image_path": "/static/images/medicines/otc_hydrocortisone.jpg"
+            }
+          ],
+          "stage_b": [
+            {
+              "category": "Prescription-strength Antihistamines",
+              "description": "High-potency, non-sedating histamine blockers prescribed by a doctor for long-term daily management of chronic allergic symptoms.",
+              "warning": "Available only by prescription. A doctor determines if this is suitable based on clinical testing.",
+              "image_path": "/static/images/medicines/rx_antihistamines.jpg"
+            },
+            {
+              "category": "Epinephrine Auto-injector",
+              "description": "A portable emergency injection device containing epinephrine (adrenaline). It rapidly reverses severe airway obstruction, throat swelling, and drop in blood pressure during anaphylaxis.",
+              "warning": "Prescribed to individuals with confirmed severe allergies. Must be carried at all times and administered immediately during a severe reaction before calling emergency services.",
+              "image_path": "/static/images/medicines/rx_epinephrine.jpg"
+            }
+          ]
+        }
+      },
+      "created_at": "2026-06-30T16:28:16.558916"
+    },
+    {
+      "id": "8dae1f63-8328-4558-93b4-da17430a879f",
+      "user_id": "mock-user-123",
+      "query_text": "Food:  | Symptoms: ",
+      "selected_symptoms": [
+        "low_bp",
+        "diff_breathing"
+      ],
+      "photo_url": null,
+      "photo_analysis": null,
+      "results": {
+        "top_allergens": [
+          {
+            "id": "peanuts",
+            "name": "Peanuts",
+            "score": 65.0,
+            "description": "Legumes growing underground, distinct from tree nuts. Common trigger for severe anaphylaxis.",
+            "thumbnail_path": "/static/images/allergens/peanuts.jpg"
+          },
+          {
+            "id": "tree_nuts",
+            "name": "Tree Nuts",
+            "score": 65.0,
+            "description": "Includes almonds, cashews, walnuts, pistachios. Often causes lifelong allergies.",
+            "thumbnail_path": "/static/images/allergens/tree_nuts.jpg"
+          },
+          {
+            "id": "dairy",
+            "name": "Dairy",
+            "score": 65.0,
+            "description": "Milk proteins (whey and casein). Common in children, can cause digestive and skin reactions.",
+            "thumbnail_path": "/static/images/allergens/dairy.jpg"
+          }
+        ],
+        "severe_symptom_detected": true,
+        "emergency_alert": true,
+        "extracted_foods": [],
+        "extracted_symptoms": [],
+        "photo_analysis": null,
+        "doctor_note": {
+          "disclaimer": "Educational content for this academic project \u2014 not a substitute for an in-person medical evaluation.",
+          "mechanism": "Allergic reactions are hypersensitivity responses triggered when the immune system mistakenly identifies harmless food proteins as threats. Specifically, IgE antibodies bind to the allergen, triggering mast cells to release inflammatory chemicals like histamine. This causes blood vessel dilation (redness, swelling), smooth muscle contraction (difficulty breathing), and skin nerve irritation (itching/hives).",
+          "see_doctor_bullets": [
+            "You experience respiratory distress, throat constriction, or dizziness (anaphylaxis indicators).",
+            "Symptoms recur consistently after consuming specific foods or food families.",
+            "You require clinical diagnostic testing to confirm exact IgE-mediated triggers."
+          ],
+          "allergist_evaluation": "An allergist visit typically involves: a clinical interview, a Skin Prick Test (SPT) where tiny drops of allergen extracts are introduced to the skin surface, an IgE Blood Test to quantify circulating antibodies, or an Oral Food Challenge (OFC) conducted under strict medical supervision."
+        },
+        "food_guidance": {
+          "avoid": [
+            {
+              "id": "upma_pesarattu",
+              "name": "Semolina Green Gram Crepe (Upma Pesarattu)",
+              "image_path": "/static/images/foods/upma_pesarattu.jpg",
+              "description": "Green gram crepe stuffed with semolina (upma), roasted cashews, and ghee.",
+              "triggered_allergens": [
+                "dairy",
+                "tree_nuts"
+              ],
+              "alternatives": [
+                "Plain Pesarattu (ghee-free/wheat-free)",
+                "Quinoa Upma Crepe"
+              ],
+              "ingredients": [
+                "green gram",
+                "semolina (wheat)",
+                "cashews",
+                "ghee (milk fat)",
+                "ginger",
+                "green chili",
+                "mustard seeds"
+              ],
+              "protein_grams": 11,
+              "protein_pct": 22,
+              "calories": 320,
+              "carbs_grams": 42,
+              "fats_grams": 12
+            },
+            {
+              "id": "punugulu",
+              "name": "Fried Rice-Lentil Dumplings (Punugulu)",
+              "image_path": "/static/images/foods/punugulu.jpg",
+              "description": "Deep-fried snack bites made from fermented rice and urad dal batter.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Steamed Idli Bites",
+                "Baked Rice Crackers"
+              ],
+              "ingredients": [
+                "rice",
+                "black gram (urad dal)",
+                "chili",
+                "onion",
+                "wheat flour (for binding)",
+                "peanut oil for frying"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 250,
+              "carbs_grams": 32,
+              "fats_grams": 11
+            },
+            {
+              "id": "garelu",
+              "name": "Fried Lentil Donuts (Garelu)",
+              "image_path": "/static/images/foods/garelu.jpg",
+              "description": "Savory fried donuts made from black gram (urad dal) batter, pepper, and ginger.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Baked Lentil Patties",
+                "Steamed Kudumulu"
+              ],
+              "ingredients": [
+                "black gram (urad dal)",
+                "onion",
+                "ginger",
+                "green chili",
+                "black pepper",
+                "peanut oil"
+              ],
+              "protein_grams": 6,
+              "protein_pct": 12,
+              "calories": 240,
+              "carbs_grams": 22,
+              "fats_grams": 14
+            },
+            {
+              "id": "mirapakaya_bajji",
+              "name": "Chili Fritters (Mirapakaya Bajji)",
+              "image_path": "/static/images/foods/mirapakaya_bajji.jpg",
+              "description": "Spicy green chili fritters stuffed with tamarind pulp and carom seeds, fried in chickpea batter.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Aloo Bajji (potato-based, mild chili)",
+                "Stuffed Baked Capsicum"
+              ],
+              "ingredients": [
+                "banana pepper (green chili)",
+                "chickpea flour",
+                "tamarind pulp",
+                "carom seeds",
+                "peanut oil"
+              ],
+              "protein_grams": 3,
+              "protein_pct": 6,
+              "calories": 180,
+              "carbs_grams": 18,
+              "fats_grams": 10
+            },
+            {
+              "id": "thapala_chekkalu",
+              "name": "Rice Crackers (Thapala Chekkalu)",
+              "image_path": "/static/images/foods/thapala_chekkalu.jpg",
+              "description": "Crispy flattened rice-flour crackers containing peanuts, chana dal, and spices.",
+              "triggered_allergens": [
+                "peanuts",
+                "dairy"
+              ],
+              "alternatives": [
+                "Plain Baked Rice Crackers",
+                "Roasted Chana Patties"
+              ],
+              "ingredients": [
+                "rice flour",
+                "peanuts",
+                "chana dal",
+                "onion",
+                "green chilies",
+                "sesame seeds",
+                "ghee"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 220,
+              "carbs_grams": 26,
+              "fats_grams": 11
+            },
+            {
+              "id": "hyderabadi_biryani",
+              "name": "Hyderabadi Biryani",
+              "image_path": "/static/images/foods/hyderabadi_biryani.jpg",
+              "description": "World-famous royal dish of basmati rice, meat marinated in yogurt and spices, cooked on slow heat (dum).",
+              "triggered_allergens": [
+                "tree_nuts",
+                "dairy"
+              ],
+              "alternatives": [
+                "Pulao (ghee-free/yogurt-free)",
+                "Plain Saffron Basmati Rice"
+              ],
+              "ingredients": [
+                "basmati rice",
+                "mutton or chicken",
+                "yogurt (curd)",
+                "ghee",
+                "onions",
+                "saffron",
+                "cashew paste",
+                "spices"
+              ],
+              "protein_grams": 24,
+              "protein_pct": 48,
+              "calories": 650,
+              "carbs_grams": 78,
+              "fats_grams": 22
+            },
+            {
+              "id": "kodi_pulao",
+              "name": "Chicken Pulao (Kodi Pulao)",
+              "image_path": "/static/images/foods/kodi_pulao.jpg",
+              "description": "Spicy chicken and rice dish cooked with coconut milk and rich spices.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Steamed Rice with Mild Chicken Curry",
+                "Vegetable Pulao (coconut-free)"
+              ],
+              "ingredients": [
+                "basmati rice",
+                "chicken",
+                "coconut milk",
+                "ghee",
+                "green chilies",
+                "poppy seeds",
+                "spices"
+              ],
+              "protein_grams": 22,
+              "protein_pct": 44,
+              "calories": 580,
+              "carbs_grams": 68,
+              "fats_grams": 18
+            },
+            {
+              "id": "pulihora",
+              "name": "Tamarind Rice (Pulihora)",
+              "image_path": "/static/images/foods/pulihora.jpg",
+              "description": "Tangy tamarind rice seasoned with mustard seeds, curry leaves, and roasted peanuts.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Lemon Rice (peanut-free)",
+                "Coconut Rice (tamarind/peanut-free)"
+              ],
+              "ingredients": [
+                "rice",
+                "tamarind pulp",
+                "peanuts",
+                "mustard seeds",
+                "turmeric",
+                "sesame oil",
+                "green chilies"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 340,
+              "carbs_grams": 56,
+              "fats_grams": 10
+            },
+            {
+              "id": "ragi_sangati",
+              "name": "Finger Millet Balls (Ragi Sangati)",
+              "image_path": "/static/images/foods/ragi_sangati.jpg",
+              "description": "Nutritious balls made of finger millet (ragi) flour and cooked rice, traditionally eaten with ghee.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Plain Steamed Rice",
+                "Quinoa Mash"
+              ],
+              "ingredients": [
+                "finger millet (ragi)",
+                "rice",
+                "water",
+                "ghee (for serving)"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 220,
+              "carbs_grams": 48,
+              "fats_grams": 3
+            },
+            {
+              "id": "mudda_pappu",
+              "name": "Boiled Yellow Lentils (Mudda Pappu)",
+              "image_path": "/static/images/foods/mudda_pappu.jpg",
+              "description": "Thick, creamy plain boiled yellow pigeon peas (toor dal) served with hot rice and ghee.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Moong Dal (ghee-free)",
+                "Steamed lentils with olive oil"
+              ],
+              "ingredients": [
+                "toor dal",
+                "water",
+                "turmeric",
+                "salt",
+                "ghee"
+              ],
+              "protein_grams": 8,
+              "protein_pct": 16,
+              "calories": 150,
+              "carbs_grams": 22,
+              "fats_grams": 4
+            },
+            {
+              "id": "ulava_charu",
+              "name": "Horse Gram Soup (Ulava Charu)",
+              "image_path": "/static/images/foods/ulava_charu.jpg",
+              "description": "Traditional thick horse gram soup, highly spiced, served with fresh cream.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Pappu Charu (cream-free)",
+                "Tomato Rasam"
+              ],
+              "ingredients": [
+                "horse gram",
+                "tamarind",
+                "cream (milk product)",
+                "ghee",
+                "mustard seeds",
+                "green chilies"
+              ],
+              "protein_grams": 7,
+              "protein_pct": 14,
+              "calories": 180,
+              "carbs_grams": 24,
+              "fats_grams": 5
+            },
+            {
+              "id": "pulagam",
+              "name": "Rice & Yellow Moong Dal Porridge (Pulagam)",
+              "image_path": "/static/images/foods/pulagam.jpg",
+              "description": "One-pot dish made of rice and split yellow moong dal, offered as a temple prasadam.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Simple Boiled Rice",
+                "Peppery Oats Khichdi (lentil-free)"
+              ],
+              "ingredients": [
+                "rice",
+                "split yellow moong dal",
+                "black pepper",
+                "cumin",
+                "ghee"
+              ],
+              "protein_grams": 6,
+              "protein_pct": 12,
+              "calories": 210,
+              "carbs_grams": 38,
+              "fats_grams": 5
+            },
+            {
+              "id": "majjiga_pulusu",
+              "name": "Tempered Buttermilk Stew (Majjiga Pulusu / Charu)",
+              "image_path": "/static/images/foods/majjiga_pulusu.jpg",
+              "description": "Buttermilk-based soup containing vegetables, thickened with chickpea flour and tempered.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Vegetable Clear Soup",
+                "Tomato Rasam"
+              ],
+              "ingredients": [
+                "curd (yogurt)",
+                "chickpea flour",
+                "bottle gourd",
+                "turmeric",
+                "mustard seeds",
+                "fenugreek",
+                "ginger",
+                "chilies"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 120,
+              "carbs_grams": 12,
+              "fats_grams": 6
+            },
+            {
+              "id": "gutti_vankaya_kura",
+              "name": "Stuffed Eggplant Curry (Gutti Vankaya Kura)",
+              "image_path": "/static/images/foods/gutti_vankaya_kura.jpg",
+              "description": "Stuffed eggplant curry with a rich paste of peanuts, sesame seeds, coconut, and tamarind.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Aloo Gobi (potato-cauliflower)",
+                "Plain Roasted Eggplant"
+              ],
+              "ingredients": [
+                "eggplant",
+                "peanuts",
+                "sesame seeds",
+                "grated coconut",
+                "tamarind pulp",
+                "coriander seeds",
+                "mustard seeds",
+                "peanut oil"
+              ],
+              "protein_grams": 4,
+              "protein_pct": 8,
+              "calories": 260,
+              "carbs_grams": 18,
+              "fats_grams": 20
+            },
+            {
+              "id": "gongura_mutton",
+              "name": "Sorrel Leaves Mutton Curry (Gongura Mutton)",
+              "image_path": "/static/images/foods/gongura_mutton.jpg",
+              "description": "Mutton cooked with sour sorrel leaves (gongura), spices, and peanut oil.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Plain Mutton Curry (non-sour)",
+                "Herb Roasted Lamb"
+              ],
+              "ingredients": [
+                "mutton",
+                "gongura leaves",
+                "onions",
+                "green chilies",
+                "ginger-garlic",
+                "peanut oil",
+                "spices"
+              ],
+              "protein_grams": 23,
+              "protein_pct": 46,
+              "calories": 460,
+              "carbs_grams": 10,
+              "fats_grams": 32
+            },
+            {
+              "id": "kandi_podi",
+              "name": "Roasted Lentil Powder (Kandi Podi)",
+              "image_path": "/static/images/foods/kandi_podi.jpg",
+              "description": "Roasted lentil powder (toor dal, chana dal) mixed with cumin and dry chilies, eaten with ghee.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Sesame Podi (ghee-free)",
+                "Roasted Garlic powder"
+              ],
+              "ingredients": [
+                "toor dal",
+                "chana dal",
+                "dry red chilies",
+                "cumin",
+                "salt",
+                "ghee (for serving)"
+              ],
+              "protein_grams": 9,
+              "protein_pct": 18,
+              "calories": 120,
+              "carbs_grams": 16,
+              "fats_grams": 2
+            },
+            {
+              "id": "pootharekulu",
+              "name": "Paper Sweet (Pootharekulu)",
+              "image_path": "/static/images/foods/pootharekulu.jpg",
+              "description": "Delectable wafer-like paper sweet from Atreyapuram, made of rice starch sheets, sugar/jaggery, ghee, and cashews.",
+              "triggered_allergens": [
+                "dairy",
+                "tree_nuts"
+              ],
+              "alternatives": [
+                "Rice Flour Phirni (nut-free)",
+                "Dry Fruit-free Laddu (made with sugar & oil)"
+              ],
+              "ingredients": [
+                "rice starch",
+                "jaggery",
+                "sugar",
+                "ghee",
+                "cashews",
+                "almonds"
+              ],
+              "protein_grams": 2,
+              "protein_pct": 4,
+              "calories": 220,
+              "carbs_grams": 38,
+              "fats_grams": 8
+            },
+            {
+              "id": "poornam_boorelu",
+              "name": "Sweet Stuffed Dumplings (Poornam Boorelu)",
+              "image_path": "/static/images/foods/poornam_boorelu.jpg",
+              "description": "Deep-fried sweet dumplings stuffed with sweet chana dal, jaggery, and coconut, coated in urad dal batter.",
+              "triggered_allergens": [
+                "peanuts"
+              ],
+              "alternatives": [
+                "Steamed Poornam Kudumulu (oil-free)",
+                "Rice Payasam (coconut-free)"
+              ],
+              "ingredients": [
+                "chana dal",
+                "jaggery",
+                "fresh coconut",
+                "black gram (urad dal)",
+                "rice flour",
+                "cardamom",
+                "peanut oil"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 150,
+              "carbs_grams": 20,
+              "fats_grams": 5
+            },
+            {
+              "id": "ariselu",
+              "name": "Sweet Rice-Jaggery Cakes (Ariselu)",
+              "image_path": "/static/images/foods/ariselu.jpg",
+              "description": "Traditional deep-fried sweet made from rice flour, melted jaggery, and sesame seeds.",
+              "triggered_allergens": [
+                "peanuts",
+                "dairy"
+              ],
+              "alternatives": [
+                "Rava Kesari (semolina based, sesame-free)",
+                "Rice Payasam"
+              ],
+              "ingredients": [
+                "rice flour",
+                "jaggery",
+                "sesame seeds",
+                "ghee",
+                "peanut oil"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 150,
+              "carbs_grams": 20,
+              "fats_grams": 5
+            },
+            {
+              "id": "spiced_majjiga",
+              "name": "Spiced Buttermilk (Spiced Majjiga)",
+              "image_path": "/static/images/foods/spiced_majjiga.jpg",
+              "description": "Refreshing buttermilk spiced with ginger, curry leaves, green chilies, and coriander.",
+              "triggered_allergens": [
+                "dairy"
+              ],
+              "alternatives": [
+                "Coconut Water",
+                "Lemon Water with salt and ginger"
+              ],
+              "ingredients": [
+                "curd (yogurt)",
+                "water",
+                "ginger",
+                "green chili",
+                "coriander leaves",
+                "salt"
+              ],
+              "protein_grams": 5,
+              "protein_pct": 10,
+              "calories": 150,
+              "carbs_grams": 20,
+              "fats_grams": 5
+            }
+          ],
+          "alternatives": [
+            {
+              "name": "Plain Pesarattu (ghee-free/wheat-free)",
+              "for_food": "Semolina Green Gram Crepe (Upma Pesarattu)"
+            },
+            {
+              "name": "Quinoa Upma Crepe",
+              "for_food": "Semolina Green Gram Crepe (Upma Pesarattu)"
+            },
+            {
+              "name": "Steamed Idli Bites",
+              "for_food": "Fried Rice-Lentil Dumplings (Punugulu)"
+            },
+            {
+              "name": "Baked Rice Crackers",
+              "for_food": "Fried Rice-Lentil Dumplings (Punugulu)"
+            },
+            {
+              "name": "Baked Lentil Patties",
+              "for_food": "Fried Lentil Donuts (Garelu)"
+            },
+            {
+              "name": "Steamed Kudumulu",
+              "for_food": "Fried Lentil Donuts (Garelu)"
+            },
+            {
+              "name": "Aloo Bajji (potato-based, mild chili)",
+              "for_food": "Chili Fritters (Mirapakaya Bajji)"
+            },
+            {
+              "name": "Stuffed Baked Capsicum",
+              "for_food": "Chili Fritters (Mirapakaya Bajji)"
+            },
+            {
+              "name": "Plain Baked Rice Crackers",
+              "for_food": "Rice Crackers (Thapala Chekkalu)"
+            },
+            {
+              "name": "Roasted Chana Patties",
+              "for_food": "Rice Crackers (Thapala Chekkalu)"
+            },
+            {
+              "name": "Pulao (ghee-free/yogurt-free)",
+              "for_food": "Hyderabadi Biryani"
+            },
+            {
+              "name": "Plain Saffron Basmati Rice",
+              "for_food": "Hyderabadi Biryani"
+            },
+            {
+              "name": "Steamed Rice with Mild Chicken Curry",
+              "for_food": "Chicken Pulao (Kodi Pulao)"
+            },
+            {
+              "name": "Vegetable Pulao (coconut-free)",
+              "for_food": "Chicken Pulao (Kodi Pulao)"
+            },
+            {
+              "name": "Lemon Rice (peanut-free)",
+              "for_food": "Tamarind Rice (Pulihora)"
+            },
+            {
+              "name": "Coconut Rice (tamarind/peanut-free)",
+              "for_food": "Tamarind Rice (Pulihora)"
+            },
+            {
+              "name": "Plain Steamed Rice",
+              "for_food": "Finger Millet Balls (Ragi Sangati)"
+            },
+            {
+              "name": "Quinoa Mash",
+              "for_food": "Finger Millet Balls (Ragi Sangati)"
+            },
+            {
+              "name": "Moong Dal (ghee-free)",
+              "for_food": "Boiled Yellow Lentils (Mudda Pappu)"
+            },
+            {
+              "name": "Steamed lentils with olive oil",
+              "for_food": "Boiled Yellow Lentils (Mudda Pappu)"
+            },
+            {
+              "name": "Pappu Charu (cream-free)",
+              "for_food": "Horse Gram Soup (Ulava Charu)"
+            },
+            {
+              "name": "Tomato Rasam",
+              "for_food": "Horse Gram Soup (Ulava Charu)"
+            },
+            {
+              "name": "Simple Boiled Rice",
+              "for_food": "Rice & Yellow Moong Dal Porridge (Pulagam)"
+            },
+            {
+              "name": "Peppery Oats Khichdi (lentil-free)",
+              "for_food": "Rice & Yellow Moong Dal Porridge (Pulagam)"
+            },
+            {
+              "name": "Vegetable Clear Soup",
+              "for_food": "Tempered Buttermilk Stew (Majjiga Pulusu / Charu)"
+            },
+            {
+              "name": "Aloo Gobi (potato-cauliflower)",
+              "for_food": "Stuffed Eggplant Curry (Gutti Vankaya Kura)"
+            },
+            {
+              "name": "Plain Roasted Eggplant",
+              "for_food": "Stuffed Eggplant Curry (Gutti Vankaya Kura)"
+            },
+            {
+              "name": "Plain Mutton Curry (non-sour)",
+              "for_food": "Sorrel Leaves Mutton Curry (Gongura Mutton)"
+            },
+            {
+              "name": "Herb Roasted Lamb",
+              "for_food": "Sorrel Leaves Mutton Curry (Gongura Mutton)"
+            },
+            {
+              "name": "Sesame Podi (ghee-free)",
+              "for_food": "Roasted Lentil Powder (Kandi Podi)"
+            },
+            {
+              "name": "Roasted Garlic powder",
+              "for_food": "Roasted Lentil Powder (Kandi Podi)"
+            },
+            {
+              "name": "Rice Flour Phirni (nut-free)",
+              "for_food": "Paper Sweet (Pootharekulu)"
+            },
+            {
+              "name": "Dry Fruit-free Laddu (made with sugar & oil)",
+              "for_food": "Paper Sweet (Pootharekulu)"
+            },
+            {
+              "name": "Steamed Poornam Kudumulu (oil-free)",
+              "for_food": "Sweet Stuffed Dumplings (Poornam Boorelu)"
+            },
+            {
+              "name": "Rice Payasam (coconut-free)",
+              "for_food": "Sweet Stuffed Dumplings (Poornam Boorelu)"
+            },
+            {
+              "name": "Rava Kesari (semolina based, sesame-free)",
+              "for_food": "Sweet Rice-Jaggery Cakes (Ariselu)"
+            },
+            {
+              "name": "Rice Payasam",
+              "for_food": "Sweet Rice-Jaggery Cakes (Ariselu)"
+            },
+            {
+              "name": "Coconut Water",
+              "for_food": "Spiced Buttermilk (Spiced Majjiga)"
+            },
+            {
+              "name": "Lemon Water with salt and ginger",
+              "for_food": "Spiced Buttermilk (Spiced Majjiga)"
+            }
+          ]
+        },
+        "medicine_guidance": {
+          "disclaimer": "Confirm with a doctor before using any medication. Dosages and brands are omitted for clinical safety.",
+          "stage_a": [
+            {
+              "category": "Oral Antihistamines",
+              "description": "A class of over-the-counter medications that block histamine receptors. Typically used to relieve itching, hives, sneezing, and runny nose.",
+              "warning": "Consult a healthcare provider before use. May cause drowsiness depending on the formulation.",
+              "image_path": "/static/images/medicines/otc_antihistamines.jpg"
+            }
+          ],
+          "stage_b": [
+            {
+              "category": "Prescription-strength Antihistamines",
+              "description": "High-potency, non-sedating histamine blockers prescribed by a doctor for long-term daily management of chronic allergic symptoms.",
+              "warning": "Available only by prescription. A doctor determines if this is suitable based on clinical testing.",
+              "image_path": "/static/images/medicines/rx_antihistamines.jpg"
+            },
+            {
+              "category": "Epinephrine Auto-injector",
+              "description": "A portable emergency injection device containing epinephrine (adrenaline). It rapidly reverses severe airway obstruction, throat swelling, and drop in blood pressure during anaphylaxis.",
+              "warning": "Prescribed to individuals with confirmed severe allergies. Must be carried at all times and administered immediately during a severe reaction before calling emergency services.",
+              "image_path": "/static/images/medicines/rx_epinephrine.jpg"
+            },
+            {
+              "category": "Allergen Immunotherapy (AIT)",
+              "description": "A long-term treatment (allergy shots or sublingual drops/tablets) administered under medical supervision to desensitize the immune system to specific allergens.",
+              "warning": "Requires formal allergy diagnosis (e.g. skin prick testing) and is conducted over 3-5 years under close clinical observation.",
+              "image_path": "/static/images/medicines/rx_immunotherapy.jpg"
+            }
+          ]
+        }
+      },
+      "created_at": "2026-06-30T16:28:16.692710"
     }
   ]
 }
