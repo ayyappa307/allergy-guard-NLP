@@ -4,7 +4,7 @@ import {
   Activity, AlertTriangle, CheckCircle, ChevronRight, FileText, 
   History, Info, LogOut, Search, ShieldAlert, User, XCircle, 
   Upload, Image as ImageIcon, Check, RefreshCw, Printer, Plus,
-  Sun, Moon, Stethoscope, Star, MapPin
+  Sun, Moon, Stethoscope
 } from "lucide-react";
 import { 
   fetchAllergens, fetchSymptoms, fetchFoods, 
@@ -188,27 +188,15 @@ function FoodItemCard({ food, isSafe }) {
 
       {/* Content Section */}
       <div className="p-5 flex-grow flex flex-col justify-between text-left space-y-3.5">
-        {/* Title & Rating Row */}
+        {/* Title & Category Info */}
         <div>
-          <div className="flex items-start justify-between gap-3">
-            <span className="text-base font-extrabold text-slate-850 dark:text-white leading-snug line-clamp-1">
-              {food.name}
-            </span>
-            <div className="flex items-center gap-1 text-slate-805 dark:text-slate-200 font-extrabold text-xs bg-amber-500/10 dark:bg-amber-400/10 px-2 py-0.5 rounded-lg flex-shrink-0">
-              <Star className="w-3.5 h-3.5 fill-amber-400 stroke-amber-500" />
-              <span>{meta.rating}</span>
-            </div>
-          </div>
-
-          {/* Badge & Distance Row */}
-          <div className="flex items-center justify-between mt-2.5">
+          <span className="text-base font-extrabold text-slate-850 dark:text-white leading-snug line-clamp-1 block">
+            {food.name}
+          </span>
+          <div className="mt-2.5">
             <span className="text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350 px-2.5 py-1 rounded-md uppercase tracking-wider">
               {meta.category}
             </span>
-            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
-              <MapPin className="w-3.5 h-3.5 text-slate-400" />
-              <span>{meta.distance}</span>
-            </div>
           </div>
         </div>
 
